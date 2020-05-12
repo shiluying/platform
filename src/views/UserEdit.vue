@@ -2,8 +2,8 @@
   <div>
     <el-dialog title="修改/添加用户信息" :visible.sync="UserEdit.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" :rules="formrules">
-        <el-form-item label="用户id" prop="userid">
-          <el-input v-model="FormData.userid"></el-input>
+        <el-form-item label="用户id" prop="user_id">
+          <el-input v-model="FormData.user_id"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="name">
           <el-input v-model="FormData.name"></el-input>
@@ -17,17 +17,17 @@
               v-for="item in typeList"
               :key="item.id"
               :label="item.value"
-              :value="item.value">
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户权限" prop="examine" @change="getExamine">
+        <el-form-item label="商品审核权限" prop="examine" @change="getExamine">
           <el-select v-model="FormData.examine">
             <el-option
               v-for="item in examineList"
               :key="item.id"
               :label="item.value"
-              :value="item.value">
+              :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -51,35 +51,27 @@ export default {
     return {
       typeList: [
         {
+          id: '0',
+          value: '普通用户'
+        },
+        {
           id: '1',
-          value: '普通任务'
-        },
-        {
-          id: '2',
-          value: '重要任务'
-        },
-        {
-          id: '3',
-          value: '特殊任务'
+          value: '管理员'
         }
       ],
       examineList: [
         {
+          id: '0',
+          value: '无'
+        },
+        {
           id: '1',
-          value: '未开始'
-        },
-        {
-          id: '2',
-          value: '进行中'
-        },
-        {
-          id: '3',
-          value: '已结束'
+          value: '有'
         }
       ],
       // 表单规则
       formrules: {
-        userid: [{required: true, message: '用户id不能为空', trigger: 'blur'}],
+        user_id: [{required: true, message: '用户id不能为空', trigger: 'blur'}],
         name: [{required: true, message: '用户名不能为空', trigger: 'blur'}],
         pwd: [{required: true, message: '密码不能为空', trigger: 'blur'}],
         type: [{required: true, message: '用户类型不能为空', trigger: 'blur'}],

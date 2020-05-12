@@ -14,7 +14,7 @@
             label="用户ID"
             width="">
             <template slot-scope="scope">
-              <span>{{ scope.row.userid}}</span>
+              <span>{{ scope.row.user_id}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -39,7 +39,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="用户权限"
+            label="商品审核权限"
             width="">
             <template slot-scope="scope">
               <span>{{ scope.row.examine}}</span>
@@ -51,12 +51,12 @@
             <template slot-scope="scope">
               <el-button
                 size="mini"
-                @click="doEdit(scope.$index,scope.row)"
+                @click="doEdit(scope.row)"
               >编辑</el-button>
               <el-button
                 size="mini"
                 type="danger"
-                @click="doDelete(scope.$index)"
+                @click="doDelete(scope.row)"
               >删除</el-button>
             </template>
           </el-table-column>
@@ -76,21 +76,20 @@ export default {
 
   data () {
     return {
-      index: -1,
-      tempList: [],
+      userInfo: null,
       userList: [{
-        userid: '111',
-        name: 'xxx',
-        pwd: 'aaa',
-        type: '管理员',
-        examine: 'false'
+        user_id: '',
+        name: '',
+        pwd: '',
+        type: '',
+        examine: ''
 
       }],
       UserEdit: {
         show: false
       },
       FormData: {
-        userid: '',
+        user_id: '',
         name: '',
         pwd: '',
         type: '',
@@ -101,59 +100,133 @@ export default {
   methods: {
     doAdd () {
       this.UserEdit.show = true
-      this.index = -1
       this.FormData = {
-        userid: '',
+        user_id: '',
         name: '',
         pwd: '',
         type: '',
         examine: ''
       }
     },
-    doEdit (index, row) {
+    doEdit (row) {
+      this.userInfo = row
       this.UserEdit.show = true
-      this.index = index
       this.FormData = {
-        userid: row.userid,
+        user_id: row.user_id,
         name: row.name,
         pwd: row.pwd,
         type: row.type,
         examine: row.examine
       }
     },
-    doDelete: function (index) {
-      var temp = []
-      for (var i = 0; i < this.tempList.length; i++) {
-        if (this.userList[index] === this.tempList[i]) {
-          continue
-        } else {
-          temp.push(this.tempList[i])
-        }
-      }
-      this.tempList = temp
-      this.userList = this.tempList
+    doDelete: function (row) {
+      var _this = this
+      this.$axios.get('/api/deleteUser/' + row.user_id)
+        .then(
+          function (response) {
+            if (response.data) {
+              _this.refresh()
+            }
+          }
+        )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
     },
     receive: function (data) {
-      if (this.index !== -1) {
-        var templist = []
-        for (var num = 0; num < this.tempList.length; num++) {
-          if (num === this.index) {
-            templist.push(data)
-          } else {
-            templist.push(this.tempList[num])
-          }
-        }
-        this.userList = templist
-        this.tempList = this.userList
-        this.index = -1
+      var _this = this
+      if (this.userInfo === null) {
+        this.$axios.get('/api/addUser/' + data.user_id + '/' + data.name + '/' + data.pwd + '/' + data.type + '/' + data.examine)
+          .then(
+            function (response) {
+              if (response.data) {
+                _this.refresh()
+              }
+            }
+          )
+          .catch(function (error) { // 请求失败处理
+            console.log(error)
+          })
       } else {
-        this.userList.push(data)
-        this.tempList = this.userList
+        if (this.userInfo.type !== data.type) {
+          this.$axios.get('/api/changeUserType/' + this.userInfo.user_id + '/' + data.type)
+            .then(
+              function (response) {
+                if (response.data) {
+                  _this.refresh()
+                }
+              }
+            )
+            .catch(function (error) { // 请求失败处理
+              console.log(error)
+            })
+        }
+        if (this.userInfo.examine !== data.examine) {
+          this.$axios.get('/api/changeUserExamine/' + this.userInfo.user_id + '/' + data.examine)
+            .then(
+              function (response) {
+                if (response.data) {
+                  _this.refresh()
+                }
+              }
+            )
+            .catch(function (error) { // 请求失败处理
+              console.log(error)
+            })
+        }
+        this.userInfo = null
       }
+    },
+    refresh () {
+      var _this = this
+      this.$axios.get('/api/findUser')
+        .then(
+          function (response) {
+            _this.userList = response.data
+            // 对数据进行处理
+            _this.userList.map(function (val) {
+              if (val.type === 0) {
+                val.type = '普通用户'
+              } else if (val.type === 1) {
+                val.type = '管理员'
+              }
+              if (val.examine === 0) {
+                val.examine = '无'
+              } else if (val.examine === 1) {
+                val.examine = '有'
+              }
+            })
+          }
+        )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
     }
   },
-  created () {
-    this.tempList = this.userList
+  mounted () {
+    var _this = this
+    this.$axios.get('/api/findUser')
+      .then(
+        function (response) {
+          _this.userList = response.data
+          // 对数据进行处理
+          _this.userList.map(function (val) {
+            if (val.type === 0) {
+              val.type = '普通用户'
+            } else if (val.type === 1) {
+              val.type = '管理员'
+            }
+            if (val.examine === 0) {
+              val.examine = '无'
+            } else if (val.examine === 1) {
+              val.examine = '有'
+            }
+          })
+        }
+      )
+      .catch(function (error) { // 请求失败处理
+        console.log(error)
+      })
   }
 }
 </script>
