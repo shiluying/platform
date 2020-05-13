@@ -1,33 +1,34 @@
 <template>
   <div class="login-container">
-    <el-form :model="ruleForm2" :rules="rules2"
+    <el-form :model="registerForm" :rules="registerRules"
              status-icon
-             ref="ruleForm2"
+             ref="registerForm"
              label-position="left"
              label-width="0px"
              class="demo-ruleForm login-page">
       <h3 class="title">系统注册</h3>
-      <el-form-item prop="userid">
+      <el-form-item prop="user_id">
         <el-input type="text"
-                  v-model="ruleForm2.userid"
+                  v-model="registerForm.user_id"
                   auto-complete="off"
                   placeholder="用户ID"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="username">
+      <el-form-item prop="name">
         <el-input type="text"
-                  v-model="ruleForm2.username"
+                  v-model="registerForm.name"
                   auto-complete="off"
                   placeholder="用户名"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="password">
-        <el-input type="password"
-                  v-model="ruleForm2.password"
+      <el-form-item prop="pwd">
+        <el-input type="pwd"
+                  v-model="registerForm.pwd"
                   auto-complete="off"
                   placeholder="密码"
         ></el-input>
       </el-form-item>
+      <p>仅支持普通用户注册,注册后自动登录系统</p>
       <el-form-item style="width:100%;">
         <el-button type="primary" style="width:100%;" @click="handleSubmit" :loading="logining">注册</el-button>
       </el-form-item>
@@ -44,13 +45,14 @@ export default {
   data () {
     return {
       logining: false,
-      ruleForm2: {
-        username: 'admin',
-        password: '123456'
+      registerForm: {
+        name: '',
+        pwd: ''
       },
-      rules2: {
-        username: [{required: true, message: 'please enter your account', trigger: 'blur'}],
-        password: [{required: true, message: 'enter your password', trigger: 'blur'}]
+      registerRules: {
+        user_id: [{required: true, message: 'please enter your account ID', trigger: 'blur'}],
+        name: [{required: true, message: 'please enter your account name', trigger: 'blur'}],
+        pwd: [{required: true, message: 'please enter your account password', trigger: 'blur'}]
       },
       checked: false
     }
@@ -58,23 +60,23 @@ export default {
   methods: {
     // 跳转至登录页面
     login () {
-      this.$router.push({ path: '/' })
+      this.$router.push({ path: '/login' })
     },
     handleSubmit (event) {
-      this.$refs.ruleForm2.validate((valid) => {
+      this.$refs.registerForm.validate((valid) => {
         if (valid) {
-          this.logining = true
-          if (this.ruleForm2.username === 'admin' &&
-              this.ruleForm2.password === '123456') {
-            this.logining = false
-            sessionStorage.setItem('user', this.ruleForm2.username)
-            this.$router.push({path: '/'})
-          } else {
-            this.logining = false
-            this.$alert('username or password wrong!', 'info', {
-              confirmButtonText: 'ok'
+          var _this = this
+          this.$axios.get('/api/addUser/' + this.registerForm.user_id + '/' + this.registerForm.name + '/' + this.registerForm.pwd + '/0/0')
+            .then(
+              function (response) {
+                if (response.data) {
+                  _this.$router.push({ path: '/container' })
+                }
+              }
+            )
+            .catch(function (error) { // 请求失败处理
+              console.log(error)
             })
-          }
         } else {
           console.log('error submit!')
           return false

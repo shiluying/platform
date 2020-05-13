@@ -120,6 +120,10 @@ export default {
                         val.state = '审核失败'
                       } else if (val.state === 2) {
                         val.state = '已发布'
+                      } else if (val.state === 3) {
+                        val.state = '已锁定'
+                      } else if (val.state === 4) {
+                        val.state = '已交易'
                       }
                     })
                   }
@@ -154,6 +158,10 @@ export default {
               val.state = '审核失败'
             } else if (val.state === 2) {
               val.state = '已发布'
+            } else if (val.state === 3) {
+              val.state = '已锁定'
+            } else if (val.state === 4) {
+              val.state = '已交易'
             }
           })
         }

@@ -18,3 +18,17 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+// 设置权限，登录后才能进入系统
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    sessionStorage.removeItem('user_id')
+  }
+  var user = sessionStorage.getItem('user_id')
+  if (!user && to.path !== '/login') {
+    next({
+      path: '/login'
+    })
+  } else {
+    next()
+  }
+})

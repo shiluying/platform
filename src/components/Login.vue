@@ -1,6 +1,5 @@
 <template>
   <div class="login-container">
-    {{this.response}}
     <el-form :model="LoginForm" :rules="LoginFormRules"
              status-icon
              ref="LoginForm"
@@ -11,7 +10,7 @@
       <el-form-item prop="username">
         <template slot="prepend"><span class="fa fa-user fa-lg" style="width: 13px"></span></template>
         <el-input type="text"
-                  v-model="LoginForm.username"
+                  v-model="LoginForm.user_id"
                   auto-complete="off"
                   placeholder="用户ID"
         ></el-input>
@@ -46,11 +45,11 @@ export default {
     return {
       logining: false,
       LoginForm: {
-        username: '0',
+        user_id: '0',
         password: 'admin'
       },
       LoginFormRules: {
-        username: [{required: true, message: 'please enter your account', trigger: 'blur'}],
+        user_id: [{required: true, message: 'please enter your account', trigger: 'blur'}],
         password: [{required: true, message: 'enter your password', trigger: 'blur'}]
       },
       checked: false
@@ -62,16 +61,18 @@ export default {
     },
     handleSubmit (event) {
       this.$refs.LoginForm.validate((valid) => {
+        // 设置状态为正在登录中
         this.logining = true
         var _this = this
         if (valid) {
-          this.$axios.get('/api/checkUser/' + this.LoginForm.username + '/' + this.LoginForm.password)
+          this.$axios.get('/api/checkUser/' + this.LoginForm.user_id + '/' + this.LoginForm.password)
             .then(
               function (response) {
-                console.log(response.data)
+                // 登录成功
                 if (response.data === true) {
                   _this.logining = false
-                  _this.$router.push({path: '/container'})
+                  sessionStorage.setItem('user_id', _this.LoginForm.user_id)
+                  _this.$router.push({path: '/usercontainer'})
                 } else {
                   _this.$alert('username or password wrong!', 'info', {
                     confirmButtonText: 'ok'
@@ -110,12 +111,12 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           let arr2 = arr[i].split('=')
           if (arr2[0] === 'C-username') {
-            this.LoginFrom.username = arr2[1]
+            this.LoginForm.user_id = arr2[1]
           } else if (arr2[0] === 'C-password') {
-            this.LoginFrom.password = arr2[1]
+            this.LoginForm.password = arr2[1]
             this.RememberPwd = true
             if (this.rememberme) {
-              this.setCookie(this.LoginFrom.username, this.LoginFrom.password, 7)
+              this.setCookie(this.LoginForm.username, this.LoginForm.password, 7)
             } else {
               this.deleteCookie()
             }

@@ -1,16 +1,18 @@
 <template>
   <div class="app">
     <el-container>
-      <el-aside class="app-side app-side-left"
-                :class="isCollapse ? 'app-side-collapsed' : 'app-side-expanded'">
-        <Sidebar :collapse="isCollapse" :routes="$router.options.routes[1].children"/>
-        <div>
+      <!--<el-aside class="app-side app-side-left"-->
+                <!--:class="isCollapse ? 'app-side-collapsed' : 'app-side-expanded'">-->
+        <!--<Sidebar :collapse="isCollapse" :routes="$router.options.routes[1].children"/>-->
+      <!--</el-aside>-->
+      <!--<el-aside class="app-side app-side-left">-->
+        <div class="app-side-content">
           <el-menu
                    router
                    class="el-menu-vertical-demo"
                    @open="handleOpen"
                    :collapse="isCollapse">
-            <template v-for="route in $router.options.routes" v-if="route.children && route.children.length">
+            <template v-for="route in $router.options.routes" v-if="route.path==='/Container'&&route.children && route.children.length">
               <template v-for="item in route.children" >
                 <el-menu-item
                   :key="route.path + '/' + item.path"
@@ -23,7 +25,7 @@
             </template>
           </el-menu>
         </div>
-      </el-aside>
+      <!--</el-aside>-->
 
       <el-container>
         <el-header class="app-header">
@@ -32,21 +34,20 @@
             <i v-show="!isCollapse" class="el-icon-d-arrow-left"></i>
             <i v-show="isCollapse" class="el-icon-d-arrow-right"></i>
           </div>
-
           <div class="app-header-userinfo">
-            <el-dropdown trigger="hover"
-                         :hide-on-click="false">
+          <el-dropdown trigger="hover"
+                       :hide-on-click="false">
               <span class="el-dropdown-link">
-                {{ username }}
-                <i class="el-icon-arrow-down el-icon--right"></i>
+                {{ user_id }}
+                <i class="el-icon-caret-bottom el-icon--right"></i>
               </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>我的消息</el-dropdown-item>
-                <el-dropdown-item>设置</el-dropdown-item>
-                <el-dropdown-item divided
-                                  @click.native="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>我的消息</el-dropdown-item>
+              <el-dropdown-item>设置</el-dropdown-item>
+              <el-dropdown-item divided
+                                @click.native="logout">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
           </div>
         </el-header>
 
@@ -61,15 +62,11 @@
 </template>
 
 <script>
-import AdminSidebar from '@/components/AdminSidebar'
 export default {
   name: 'Container',
-  components: {
-    AdminSidebar
-  },
   data () {
     return {
-      username: 'xxx',
+      user_id: '',
       isCollapse: false
     }
   },
@@ -96,10 +93,10 @@ export default {
     }
   },
   mounted: function () {
-    // let user = sessionStorage.getItem('user')
-    // if (user) {
-    //   this.username = user
-    // }
+    let id = sessionStorage.getItem('user_id')
+    if (id) {
+      this.user_id = id
+    }
   }
 }
 </script>
