@@ -65,20 +65,25 @@ export default {
         this.logining = true
         var _this = this
         if (valid) {
-          this.$axios.get('/api/checkUser/' + this.LoginForm.user_id + '/' + this.LoginForm.password)
+          _this.$axios.get('/api/checkUser/' + this.LoginForm.user_id + '/' + this.LoginForm.password)
             .then(
               function (response) {
                 // 登录成功
-                if (response.data === true) {
-                  _this.logining = false
-                  sessionStorage.setItem('user_id', _this.LoginForm.user_id)
-                  _this.$router.push({path: '/usercontainer'})
-                } else {
+                if (response.status === 200) {
+                  var userInfo = response.data.data
+                  if (userInfo.type === 1) {
+                    sessionStorage.setItem('user_id', userInfo.user_id)
+                    _this.$router.push({path: '/container'})
+                  } else if (userInfo.type === 0) {
+                    sessionStorage.setItem('user_id', userInfo.user_id)
+                    _this.$router.push({path: '/usercontainer'})
+                  }
+                } else { // 登录失败
                   _this.$alert('username or password wrong!', 'info', {
                     confirmButtonText: 'ok'
                   })
-                  _this.logining = false
                 }
+                _this.logining = false
               }
             )
             .catch(function (error) { // 请求失败处理

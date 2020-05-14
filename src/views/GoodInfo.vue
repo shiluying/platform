@@ -152,7 +152,7 @@ export default {
         this.$axios.get('/api/addGood/' + data.good_describe + '/' + data.price + '/' + sessionStorage.getItem('user_id'))
           .then(
             function (response) {
-              if (response.status === 200) {
+              if (response.data.status === 200) {
                 _this.$alert(response.data.msg, 'info', {
                   confirmButtonText: 'ok'
                 })

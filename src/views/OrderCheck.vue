@@ -8,8 +8,8 @@
         <el-form-item label="商品状态" prop="state">
           <el-input v-model="FormData.state"></el-input>
         </el-form-item>
-        <el-form-item label="商品描述" prop="describe">
-          <el-input v-model="FormData.describe"></el-input>
+        <el-form-item label="商品描述" prop="good_describe">
+          <el-input v-model="FormData.good_describe"></el-input>
         </el-form-item>
         <el-form-item label="商品价格" prop="price">
           <el-input v-model="FormData.price"></el-input>

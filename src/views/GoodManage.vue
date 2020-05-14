@@ -117,7 +117,7 @@ export default {
       this.$axios.get('/api/changeGoodState/' + row.good_id + '/-1')
         .then(
           function (response) {
-            if (response.status === 200) {
+            if (response.data.status === 200) {
               _this.$alert(response.data.msg, 'info', {
                 confirmButtonText: 'ok'
               })
@@ -138,7 +138,7 @@ export default {
       this.$axios.get('/api/changeGoodState/' + row.good_id + '/1')
         .then(
           function (response) {
-            if (response.status === 200) {
+            if (response.data.status === 200) {
               _this.$alert(response.data.msg, 'info', {
                 confirmButtonText: 'ok'
               })
@@ -161,7 +161,7 @@ export default {
     this.$axios.get('/api/findAllByState/0')
       .then(
         function (response) {
-          if (response.status === 200) {
+          if (response.data.status === 200) {
             _this.goodList = response.data.data
             // 对数据进行处理
             _this.goodList.map(function (val) {

@@ -108,22 +108,28 @@ export default {
         this.$axios.get('/api/findGood/' + _this.filter)
           .then(
             function (response) {
-              _this.goodList = []
-              _this.goodList[0] = response.data
-              // 对数据进行处理
-              _this.goodList.map(function (val) {
-                if (val.state === 0) {
-                  val.state = '待审核'
-                } else if (val.state === -1) {
-                  val.state = '审核失败'
-                } else if (val.state === 1) {
-                  val.state = '已发布'
-                } else if (val.state === 2) {
-                  val.state = '已锁定'
-                } else if (val.state === 3) {
-                  val.state = '已交易'
-                }
-              })
+              if (response.data.status === 200) {
+                _this.goodList = []
+                _this.goodList[0] = response.data.data
+                // 对数据进行处理
+                _this.goodList.map(function (val) {
+                  if (val.state === 0) {
+                    val.state = '待审核'
+                  } else if (val.state === -1) {
+                    val.state = '审核失败'
+                  } else if (val.state === 1) {
+                    val.state = '已发布'
+                  } else if (val.state === 2) {
+                    val.state = '已锁定'
+                  } else if (val.state === 3) {
+                    val.state = '已交易'
+                  }
+                })
+              } else {
+                _this.$alert(response.data.msg, 'info', {
+                  confirmButtonText: 'ok'
+                })
+              }
             }
           )
           .catch(function (error) { // 请求失败处理
@@ -138,7 +144,66 @@ export default {
       this.$axios.get('/api/findGood')
         .then(
           function (response) {
-            _this.goodList = response.data
+            if (response.data.status === 200) {
+              _this.goodList = response.data.data
+              // 对数据进行处理
+              _this.goodList.map(function (val) {
+                if (val.state === 0) {
+                  val.state = '待审核'
+                } else if (val.state === -1) {
+                  val.state = '审核失败'
+                } else if (val.state === 1) {
+                  val.state = '已发布'
+                } else if (val.state === 2) {
+                  val.state = '已锁定'
+                } else if (val.state === 3) {
+                  val.state = '已交易'
+                }
+              })
+            } else {
+              _this.$alert(response.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
+    },
+    doOrder (row) {
+      var _this = this
+      this.$axios.get('/api/changeGoodState/' + row.good_id + '/' + 2)
+        .then(
+          function (response) {
+            if (response.data.status === 200) {
+              _this.FormData = response.data.data
+              _this.FormData.state = '已锁定'
+              _this.OrderCheck.show = true
+              _this.refresh()
+            } else {
+              _this.$alert(response.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
+    },
+    receive: function (data) {
+      this.refresh()
+    }
+  },
+  mounted () {
+    var _this = this
+    this.$axios.get('/api/findGood')
+      .then(
+        function (response) {
+          console.log(response)
+          if (response.data.status === 200) {
+            _this.goodList = response.data.data
             // 对数据进行处理
             _this.goodList.map(function (val) {
               if (val.state === 0) {
@@ -153,57 +218,12 @@ export default {
                 val.state = '已交易'
               }
             })
+            _this.refresh()
+          } else {
+            _this.$alert(response.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
           }
-        )
-        .catch(function (error) { // 请求失败处理
-          console.log(error)
-        })
-    },
-    doOrder (row) {
-      var _this = this
-      this.$axios.get('/api/changeGoodState/' + row.good_id + '/' + 2)
-        .then(
-          function (response) {
-            if (response.data) {
-              _this.$axios.get('/api/findGood/' + row.good_id)
-                .then(
-                  function (response) {
-                    _this.FormData = response.data
-                    _this.FormData.state = '已锁定'
-                    _this.OrderCheck.show = true
-                  })
-            }
-          }
-        )
-        .catch(function (error) { // 请求失败处理
-          console.log(error)
-        })
-    },
-    receive: function (data) {
-      console.log(data)
-      this.refresh()
-    }
-  },
-  mounted () {
-    var _this = this
-    this.$axios.get('/api/findGood')
-      .then(
-        function (response) {
-          _this.goodList = response.data
-          // 对数据进行处理
-          _this.goodList.map(function (val) {
-            if (val.state === 0) {
-              val.state = '待审核'
-            } else if (val.state === -1) {
-              val.state = '审核失败'
-            } else if (val.state === 1) {
-              val.state = '已发布'
-            } else if (val.state === 2) {
-              val.state = '已锁定'
-            } else if (val.state === 3) {
-              val.state = '已交易'
-            }
-          })
         }
       )
       .catch(function (error) { // 请求失败处理

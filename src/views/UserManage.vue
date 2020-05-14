@@ -116,8 +116,15 @@ export default {
       this.$axios.get('/api/deleteUser/' + row.user_id)
         .then(
           function (response) {
-            if (response.data) {
+            if (response.data.status === 200) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
               _this.refresh()
+            } else {
+              _this.$alert(response.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
             }
           }
         )
@@ -131,8 +138,15 @@ export default {
         this.$axios.get('/api/addUser/' + data.user_id + '/' + data.name + '/' + data.pwd + '/' + data.type + '/' + data.examine)
           .then(
             function (response) {
-              if (response.data) {
+              if (response.data.status === 200) {
+                _this.$alert(response.data.msg, 'info', {
+                  confirmButtonText: 'ok'
+                })
                 _this.refresh()
+              } else {
+                _this.$alert(response.msg, 'info', {
+                  confirmButtonText: 'ok'
+                })
               }
             }
           )
@@ -174,7 +188,40 @@ export default {
       this.$axios.get('/api/findUser')
         .then(
           function (response) {
-            _this.userList = response.data
+            if (response.data.status === 200) {
+              _this.userList = response.data.data
+              // 对数据进行处理
+              _this.userList.map(function (val) {
+                if (val.type === 0) {
+                  val.type = '普通用户'
+                } else if (val.type === 1) {
+                  val.type = '管理员'
+                }
+                if (val.examine === 0) {
+                  val.examine = '无'
+                } else if (val.examine === 1) {
+                  val.examine = '有'
+                }
+              })
+            } else {
+              _this.$alert(response.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
+    }
+  },
+  mounted () {
+    var _this = this
+    this.$axios.get('/api/findUser')
+      .then(
+        function (response) {
+          if (response.data.status === 200) {
+            _this.userList = response.data.data
             // 对数据进行处理
             _this.userList.map(function (val) {
               if (val.type === 0) {
@@ -188,32 +235,11 @@ export default {
                 val.examine = '有'
               }
             })
+          } else {
+            _this.$alert(response.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
           }
-        )
-        .catch(function (error) { // 请求失败处理
-          console.log(error)
-        })
-    }
-  },
-  mounted () {
-    var _this = this
-    this.$axios.get('/api/findUser')
-      .then(
-        function (response) {
-          _this.userList = response.data
-          // 对数据进行处理
-          _this.userList.map(function (val) {
-            if (val.type === 0) {
-              val.type = '普通用户'
-            } else if (val.type === 1) {
-              val.type = '管理员'
-            }
-            if (val.examine === 0) {
-              val.examine = '无'
-            } else if (val.examine === 1) {
-              val.examine = '有'
-            }
-          })
         }
       )
       .catch(function (error) { // 请求失败处理

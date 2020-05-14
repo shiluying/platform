@@ -3,7 +3,7 @@
     <el-dialog title="修改/添加商品信息" :visible.sync="GoodEdit.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" >
         <el-form-item label="商品状态" prop="state" >
-          <el-input v-model="FormData.state"></el-input>
+          <el-input v-model="FormData.state" v-bind:disabled="FormData.good_id"  ></el-input>
         </el-form-item>
         <el-form-item label="商品描述" prop="good_describe">
           <el-input v-model="FormData.good_describe"></el-input>
@@ -26,6 +26,11 @@ export default {
   props: {
     GoodEdit: Object,
     FormData: Object
+  },
+  data: function () {
+    return {readonly: true,
+      isEditState: true
+    }
   },
   methods: {
     sendFormData (editForm) {

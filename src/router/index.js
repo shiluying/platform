@@ -11,6 +11,7 @@ import GoodManage from '@/views/GoodManage'
 
 import UserComment from '@/views/UserComment'
 import GoodSearch from '@/views/GoodSearch'
+import Good from '@/views/Good'
 import GoodInfo from '@/views/GoodInfo'
 Vue.use(Router)
 Vue.prototype.$axios = Axios
@@ -54,6 +55,8 @@ export default new Router({
       children: [
         {
           path: '/UserContainer/goodsearch', name: '商品搜索', component: GoodSearch
+        },{
+          path: '/UserContainer/good', name: '主页', component: Good
         },
         {
           path: '/UserContainer/usercomment', name: '用户评论', component: UserComment
