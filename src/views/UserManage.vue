@@ -25,13 +25,6 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="用户密码"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.pwd}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
             label="用户类型"
             width="">
             <template slot-scope="scope">
@@ -80,7 +73,6 @@ export default {
       userList: [{
         user_id: '',
         name: '',
-        pwd: '',
         type: '',
         examine: ''
 
@@ -114,7 +106,7 @@ export default {
       this.FormData = {
         user_id: row.user_id,
         name: row.name,
-        pwd: row.pwd,
+        pwd: '...',
         type: row.type,
         examine: row.examine
       }

@@ -38,7 +38,7 @@
             label="商品描述"
             width="">
             <template slot-scope="scope">
-              <span>{{ scope.row.describe}}</span>
+              <span>{{ scope.row.good_describe}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -83,7 +83,7 @@ export default {
         {
           good_id: '',
           state: '',
-          describe: '',
+          good_describe: '',
           price: '',
           user_id: ''
         }
@@ -92,7 +92,7 @@ export default {
       FormData: {
         good_id: '',
         state: '',
-        describe: '',
+        good_describe: '',
         price: '',
         user_id: ''
       },
@@ -112,15 +112,15 @@ export default {
               _this.goodList[0] = response.data
               // 对数据进行处理
               _this.goodList.map(function (val) {
-                if (val.state === 1) {
+                if (val.state === 0) {
                   val.state = '待审核'
-                } else if (val.state === 0) {
+                } else if (val.state === -1) {
                   val.state = '审核失败'
-                } else if (val.state === 2) {
+                } else if (val.state === 1) {
                   val.state = '已发布'
-                } else if (val.state === 3) {
+                } else if (val.state === 2) {
                   val.state = '已锁定'
-                } else if (val.state === 4) {
+                } else if (val.state === 3) {
                   val.state = '已交易'
                 }
               })
@@ -141,15 +141,15 @@ export default {
             _this.goodList = response.data
             // 对数据进行处理
             _this.goodList.map(function (val) {
-              if (val.state === 1) {
+              if (val.state === 0) {
                 val.state = '待审核'
-              } else if (val.state === 0) {
+              } else if (val.state === -1) {
                 val.state = '审核失败'
-              } else if (val.state === 2) {
+              } else if (val.state === 1) {
                 val.state = '已发布'
-              } else if (val.state === 3) {
+              } else if (val.state === 2) {
                 val.state = '已锁定'
-              } else if (val.state === 4) {
+              } else if (val.state === 3) {
                 val.state = '已交易'
               }
             })
@@ -161,7 +161,7 @@ export default {
     },
     doOrder (row) {
       var _this = this
-      this.$axios.get('/api/changeGoodState/' + row.good_id + '/' + 3)
+      this.$axios.get('/api/changeGoodState/' + row.good_id + '/' + 2)
         .then(
           function (response) {
             if (response.data) {
@@ -192,15 +192,15 @@ export default {
           _this.goodList = response.data
           // 对数据进行处理
           _this.goodList.map(function (val) {
-            if (val.state === 1) {
+            if (val.state === 0) {
               val.state = '待审核'
-            } else if (val.state === 0) {
+            } else if (val.state === -1) {
               val.state = '审核失败'
-            } else if (val.state === 2) {
+            } else if (val.state === 1) {
               val.state = '已发布'
-            } else if (val.state === 3) {
+            } else if (val.state === 2) {
               val.state = '已锁定'
-            } else if (val.state === 4) {
+            } else if (val.state === 3) {
               val.state = '已交易'
             }
           })
