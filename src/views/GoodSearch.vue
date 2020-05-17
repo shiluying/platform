@@ -1,73 +1,77 @@
 <template>
-  <div id="app">
-    <el-row style="text-align: center;">
-      <el-form :inline="true">
-        <el-form-item style="float: left" label="查询:">
-          <el-input v-model="filter" @change="doSearch" placeholder="对商品id进行查询"></el-input>
-        </el-form-item>
-      </el-form>
-    </el-row>
-    <el-row style="text-align: center;">
-      <div class="table">
-        <el-table
-          :data="goodList"
-          border
-          style="width: 100%">
-          <el-table-column
-            label="商品ID"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.good_id}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="商品状态"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.state}}</span>
-            </template>
-          </el-table-column>
-          <!--<el-table-column-->
-          <!--label="商品图片"-->
-          <!--width="">-->
-          <!--<template slot-scope="scope">-->
-          <!--<span>{{ scope.row.photo}}</span>-->
-          <!--</template>-->
-          <!--</el-table-column>-->
-          <el-table-column
-            label="商品描述"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.good_describe}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="商品价格"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.price}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="卖家ID"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.user_id}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="doOrder(scope.row)"
-              >购买</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </el-row>
+  <div class="app-side-content">
+    <el-container>
+      <el-main>
+        <el-row style="text-align: center;">
+          <el-form :inline="true">
+            <el-form-item style="float: left" label="查询:">
+              <el-input v-model="filter" @change="doSearch" placeholder="对商品id进行查询"></el-input>
+            </el-form-item>
+          </el-form>
+        </el-row>
+        <el-row style="text-align: center;">
+          <div class="table">
+            <el-table
+              :data="goodList"
+              border
+              style="width: 100%">
+              <el-table-column
+                label="商品ID"
+                width="">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.good_id}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="商品状态"
+                width="">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.state}}</span>
+                </template>
+              </el-table-column>
+              <!--<el-table-column-->
+              <!--label="商品图片"-->
+              <!--width="">-->
+              <!--<template slot-scope="scope">-->
+              <!--<span>{{ scope.row.photo}}</span>-->
+              <!--</template>-->
+              <!--</el-table-column>-->
+              <el-table-column
+                label="商品描述"
+                width="">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.good_describe}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="商品价格"
+                width="">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.price}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="卖家ID"
+                width="">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.user_id}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                width="">
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="doOrder(scope.row)"
+                  >购买</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-row>
+      </el-main>
+    </el-container>
     <OrderCheck :OrderCheck="OrderCheck" :FormData="FormData" @update="receive"></OrderCheck>
   </div>
 </template>

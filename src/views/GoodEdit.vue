@@ -5,6 +5,20 @@
         <el-form-item label="商品状态" prop="state" >
           <el-input v-model="FormData.state" v-bind:disabled="FormData.good_id"  ></el-input>
         </el-form-item>
+        <el-form-item>
+          <div class="uploadBox" prop="fc_icon">
+            <input type="file" @change="doUpload" ref="inputFile"/>
+            <Icon type="ios-plus-empty" class="uploadIcon"></Icon>
+
+            <div class="imagePreview" v-show="categoryLogoIsShow">
+              <img :src="FormData.photo" @click="$refs.inputFile.click()"/>
+            </div>
+          </div>
+          <div v-show="categoryLogoIsShow" style="text-align: left;">
+            <Icon type="information-circled"></Icon>
+            可点击图片重新选择
+          </div>
+        </el-form-item>
         <el-form-item label="商品描述" prop="good_describe">
           <el-input v-model="FormData.good_describe"></el-input>
         </el-form-item>
@@ -28,11 +42,16 @@ export default {
     FormData: Object
   },
   data: function () {
-    return {readonly: true,
+    return {
+      categoryLogoIsShow: true,
+      readonly: true,
       isEditState: true
     }
   },
   methods: {
+    doUpload (files) {
+      this.organizationLogoIsShow = true
+    },
     sendFormData (editForm) {
       this.$refs[editForm].validate((valid) => {
         if (valid) {

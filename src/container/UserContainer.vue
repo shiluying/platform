@@ -1,64 +1,51 @@
 <template>
-  <div class="app">
     <el-container>
-      <!--<el-aside class="app-side app-side-left"-->
-      <!--:class="isCollapse ? 'app-side-collapsed' : 'app-side-expanded'">-->
-      <!--<Sidebar :collapse="isCollapse" :routes="$router.options.routes[1].children"/>-->
-      <!--</el-aside>-->
-      <!--<el-aside class="app-side app-side-left">-->
-      <div class="app-side-content">
-        <el-menu
-          router
-          class="el-menu-vertical-demo"
-          @open="handleOpen"
-          :collapse="isCollapse">
-          <template v-for="route in $router.options.routes" v-if="route.path==='/UserContainer'&&route.children && route.children.length">
-            <template v-for="item in route.children" >
-              <el-menu-item
-                :key="item.path"
-                :index="item.path"
-              >
-                <i class="el-icon-menu"></i>
-                <span slot="title">{{ item.name }}</span>
-              </el-menu-item>
-            </template>
-          </template>
-        </el-menu>
-      </div>
-      <!--</el-aside>-->
-
+      <el-header class="app-header">
+        <div class="top-bar">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="action pull-right">
+                <ul>
+                  <li><a href=""><i class="fa fa-user"></i>我的信息</a></li>
+                  <li><a href=""><i class="fa fa-lock"></i>退出登录</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-header>
       <el-container>
-        <el-header class="app-header">
-          <div style="width: 60px; cursor: pointer;"
-               @click.prevent="toggleSideBar">
-            <i v-show="!isCollapse" class="el-icon-d-arrow-left"></i>
-            <i v-show="isCollapse" class="el-icon-d-arrow-right"></i>
-          </div>
-          <div class="app-header-userinfo">
-            <el-dropdown trigger="hover"
-                         :hide-on-click="false">
-              <span class="el-dropdown-link">
-                {{ user_id }}
-                <i class="el-icon-caret-bottom el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>我的消息</el-dropdown-item>
-                <el-dropdown-item>设置</el-dropdown-item>
-                <el-dropdown-item divided
-                                  @click.native="logout">退出登录</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-        </el-header>
-
-        <el-main class="app-body">
-          <template>
-            <router-view/>
-          </template>
-        </el-main>
+      <el-aside>
+        <div style="width: 60px; cursor: pointer;"
+             @click.prevent="toggleSideBar">
+          <i v-show="!isCollapse" class="el-icon-d-arrow-left"></i>
+          <i v-show="isCollapse" class="el-icon-d-arrow-right"></i>
+        </div>
+        <div class="app-side-content">
+          <el-menu
+            router
+            class="el-menu-vertical-demo"
+            @open="handleOpen"
+            :collapse="isCollapse">
+            <template v-for="route in $router.options.routes" v-if="route.path==='/UserContainer'&&route.children && route.children.length">
+              <template v-for="item in route.children" >
+                <el-menu-item
+                  :key="item.path"
+                  :index="item.path"
+                >
+                  <i class="el-icon-menu"></i>
+                  <span slot="title">{{ item.name }}</span>
+                </el-menu-item>
+              </template>
+            </template>
+          </el-menu>
+        </div>
+      </el-aside>
+      <el-main >
+          <router-view/>
+      </el-main>
       </el-container>
     </el-container>
-  </div>
 </template>
 
 <script>
@@ -101,5 +88,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+  @import "../styles/astyle.css";
+  @import "../styles/style.css";
+  @import "../styles/responsive.css";
+  @import "../styles/translateelement.css";
 </style>

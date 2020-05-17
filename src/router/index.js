@@ -55,7 +55,8 @@ export default new Router({
       children: [
         {
           path: '/UserContainer/goodsearch', name: '商品搜索', component: GoodSearch
-        },{
+        },
+        {
           path: '/UserContainer/good', name: '主页', component: Good
         },
         {

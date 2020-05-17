@@ -78,6 +78,7 @@ export default {
         {
           good_id: '',
           state: '',
+          photo: '',
           good_describe: '',
           price: '',
           user_id: ''
