@@ -22,7 +22,6 @@
                 <p>{{good.good_describe}}</p>
                 <div class="bottom clearfix">
                   <el-button class="button" @click="doShow(good)">查 看</el-button>
-                  <el-button type="primary" :disabled="isAbleToBuy(good.state)" class="button" >购 买</el-button>
                 </div>
               </div>
             </el-card>
