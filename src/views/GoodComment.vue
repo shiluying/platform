@@ -48,10 +48,10 @@ export default {
   data () {
     return {
       goodCommentList: [{
-        commentid: 'xx',
-        comment: 'xxx',
-        goodid: 'xxxx',
-        buyerid: 'xxxx'
+        commentid: '',
+        comment: '',
+        goodid: '',
+        buyerid: ''
 
       }]
     }

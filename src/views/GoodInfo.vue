@@ -1,66 +1,36 @@
 <template>
-<div id="app">
-  <el-row style="text-align: left;">
-    <el-button
-      size="mini"
-      @click="doAdd()"
-    >添加商品</el-button>
-  </el-row>
-  <br/>
-  <el-row style="text-align: center;">
-    <div class="table">
-      <el-table
-        :data="goodList"
-        border
-        style="width: 100%">
-        <el-table-column
-          label="商品ID"
-          width="">
-          <template slot-scope="scope">
-            <span>{{ scope.row.good_id}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="商品状态"
-          width="">
-          <template slot-scope="scope">
-            <span>{{ scope.row.state}}</span>
-          </template>
-        </el-table-column>
-        <!--<el-table-column-->
-        <!--label="商品图片"-->
-        <!--width="">-->
-        <!--<template slot-scope="scope">-->
-        <!--<span>{{ scope.row.photo}}</span>-->
-        <!--</template>-->
-        <!--</el-table-column>-->
-        <el-table-column
-          label="商品描述"
-          width="">
-          <template slot-scope="scope">
-            <span>{{ scope.row.good_describe}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="商品价格"
-          width="">
-          <template slot-scope="scope">
-            <span>{{ scope.row.price}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          width="">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="doEdit(scope.row)"
-            >修改</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+<div class="app">
+  <el-col :span="24">
+      <el-button
+        size="mini"
+        @click="doAdd()"
+      >添加商品</el-button>
+  </el-col>
+  <el-col :span="3" v-for="good in this.goodList" :key="good.good_id" :offset="2" >
+    <div  @click='doEdit(good)'>
+    <el-card   v-bind:style="{width:css_width, height:css_height}">
+      <div style="height: 300px;" v-if="good.photo!==null">
+        <img :src="good.photo[0].url" class="image" style="height: 100%;">
+      </div>
+      <div style="height: 300px;" v-else>
+        <img :src="good.photo" class="image" style="height: 100%;">
+      </div>
+      <div style="padding: 14px;">
+        <span><b>商品ID: </b>{{good.good_id}}</span>
+        <span><b>商品状态:</b> {{good.state}}</span>
+        <p><b>商品描述:</b> {{good.good_describe}}</p>
+        <span><b>商品价格:</b> {{good.price}}</span>
+        <br/>
+        <br/>
+        <div class="bottom clearfix">
+          <p style="color: #3b86ff">点击卡片可修改商品信息</p>
+          </div>
+      </div>
+    </el-card>
     </div>
-  </el-row>
+    <br/>
+  </el-col>
+  <br/>
   <GoodEdit :GoodEdit="GoodEdit" :FormData="FormData" @update="receive"></GoodEdit>
 </div>
 </template>
@@ -72,44 +42,50 @@ export default {
   components: {GoodEdit},
   data: function () {
     return {
+      fileList: [{
+        name: '',
+        url: ''
+      }],
       GoodEdit: {
         show: false
       },
+      css_width: '333px',
+      css_height: '500px',
       goodList: [
         {
           good_id: '',
           state: '',
+          photo: '',
           good_describe: '',
           price: ''
         }
       ],
-      filter: '',
       FormData: {
         good_id: '',
         state: '',
+        photo: '',
         good_describe: '',
         price: ''
-      },
-      OrderCheck: {
-        show: false
       }
     }
   },
   methods: {
-    doEdit (row) {
-      this.GoodEdit.show = true
+    doEdit (good) {
       this.FormData = {
-        good_id: row.good_id,
-        state: row.state,
-        good_describe: row.good_describe,
-        price: row.price
+        good_id: good.good_id,
+        state: good.state,
+        photo: good.photo,
+        good_describe: good.good_describe,
+        price: good.price
       }
+      this.GoodEdit.show = true
     },
     doAdd () {
       this.GoodEdit.show = true
       this.FormData = {
         good_id: '',
         state: '待审核',
+        photo: '',
         good_describe: '',
         price: ''
       }
@@ -123,6 +99,10 @@ export default {
               _this.goodList = response.data.data
               // 对数据进行处理
               _this.goodList.map(function (val) {
+                if (val.photo !== null) {
+                  val.photo = '[' + val.photo + ']'
+                  val.photo = JSON.parse(val.photo)
+                }
                 if (val.state === 0) {
                   val.state = '待审核'
                 } else if (val.state === -1) {
@@ -147,9 +127,41 @@ export default {
         })
     },
     receive: function (data) {
-      var _this = this
-      if (data.good_id === '') { // 添加商品
-        this.$axios.get('/api/addGood/' + data.good_describe + '/' + data.price + '/' + sessionStorage.getItem('user_id'))
+      console.log(data)
+      let _this = this
+      if (data.state === -1) {
+        this.$axios.get('/api/deleteGood/', {
+          params: {
+            id: _this.FormData.good_id
+          }
+        }).then(
+          function (response) {
+            if (response.status === 200) {
+              if (response.data.status === 200) {
+                _this.$alert(response.data.msg, 'info', {
+                  confirmButtonText: 'ok'
+                })
+                _this.refresh()
+              } else {
+                _this.$alert(response.data.msg, 'info', {
+                  confirmButtonText: 'ok'
+                })
+              }
+            }
+          }
+        )
+          .catch(function (error) { // 请求失败处理
+            console.log(error)
+          })
+      } else if (data.good_id === '') { // 添加商品
+        this.$axios.get('/api/addGood/', {
+          params: {
+            good_describe: data.good_describe,
+            photo: data.photo,
+            price: data.price,
+            user_id: sessionStorage.getItem('user_id')
+          }
+        })
           .then(
             function (response) {
               if (response.data.status === 200) {
@@ -168,28 +180,38 @@ export default {
             console.log(error)
           })
       } else { // 修改商品
-        this.$axios.get('/api/changeGood/' + data.good_id + '/' + 0 + '/' + data.good_describe + '/' + data.price)
-          .then(
-            function (response) {
-              if (response.status === 200) {
+        this.$axios.get('/api/changeGood/', {
+          params: {
+            id: data.good_id,
+            state: 0,
+            good_describe: data.good_describe,
+            photo: data.photo,
+            price: data.price,
+            user_id: data.user_id
+          }
+        }).then(
+          function (response) {
+            if (response.status === 200) {
+              if (response.data.status === 200) {
                 _this.$alert(response.data.msg, 'info', {
                   confirmButtonText: 'ok'
                 })
                 _this.refresh()
               } else {
-                _this.$alert(response.msg, 'info', {
+                _this.$alert(response.data.msg, 'info', {
                   confirmButtonText: 'ok'
                 })
               }
             }
-          )
+          }
+        )
           .catch(function (error) { // 请求失败处理
             console.log(error)
           })
       }
     }
   },
-  mounted () {
+  created () {
     var _this = this
     this.$axios.get('/api/findAllByUserId/' + sessionStorage.getItem('user_id'))
       .then(
@@ -198,6 +220,10 @@ export default {
             _this.goodList = response.data.data
             // 对数据进行处理
             _this.goodList.map(function (val) {
+              if (val.photo !== null) {
+                val.photo = '[' + val.photo + ']'
+                val.photo = JSON.parse(val.photo)
+              }
               if (val.state === 0) {
                 val.state = '待审核'
               } else if (val.state === -1) {
@@ -225,5 +251,5 @@ export default {
 </script>
 
 <style scoped>
-
+  @import "../styles/style.css";
 </style>
