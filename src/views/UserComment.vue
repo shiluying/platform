@@ -1,44 +1,26 @@
 <template>
 <div class="app">
-  <div id="app">
-    <el-row style="text-align: center;">
-      <div class="table">
-        <el-table
-          :data="userCommentList"
-          border
-          style="width: 100%">
-          <el-table-column
-            label="评论ID"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.commentid}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="评论"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.comment}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="买家ID"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.buyerid}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="卖家ID"
-            width="">
-            <template slot-scope="scope">
-              <span>{{ scope.row.sellerid}}</span>
-            </template>
-          </el-table-column>
-        </el-table>
+  <el-col :span="3" v-for="comment in this.userCommentList" :key="comment.comment_id" :offset="2" >
+    <el-card class="box-card">
+      <div slot="header" class="clearfix">
+        <span style="text-align: left;">用户评论</span>
+        <!--<el-button style="float: right; padding: 3px"  @click="doShow(comment.buyer_id)">查看商品</el-button>-->
       </div>
-    </el-row>
-  </div>
+      <div class="text item" style="text-align: left;">
+        商品ID:{{comment.comment_id}}
+      </div>
+      <div class="text item" style="text-align: left;">
+        评价：{{comment.comment}}
+      </div>
+      <div class="text item" style="text-align: left;">
+        买家ID: {{comment.buyer_id}}
+      </div>
+      <div class="text item" style="text-align: left;">
+        卖家ID： {{comment.seller_id}}
+      </div>
+    </el-card>
+    <br/>
+  </el-col>
 </div>
 </template>
 
@@ -48,17 +30,58 @@ export default {
   data () {
     return {
       userCommentList: [{
-        commentid: 'xx',
-        comment: 'xxx',
-        sellerid: 'xxxx',
-        buyerid: 'xxxx'
+        comment_id: '',
+        comment: '',
+        seller_id: '',
+        buyer_id: ''
 
       }]
     }
+  },
+  mounted () {
+    var _this = this
+    this.$axios.get('/api/getUserComment/', {
+      params: {
+        user_id: sessionStorage.getItem('user_id')
+      }
+    })
+      .then(
+        function (response) {
+          if (response.status === 200) {
+            _this.userCommentList = response.data.data
+          } else {
+            _this.$alert(response.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
+          }
+        }
+      )
+      .catch(function (error) { // 请求失败处理
+        console.log(error)
+      })
   }
 }
 </script>
 
-<style scoped>
+<style>
+  .text {
+    font-size: 14px;
+  }
 
+  .item {
+    margin-bottom: 18px;
+  }
+
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
+  .box-card {
+    width: 480px;
+  }
 </style>

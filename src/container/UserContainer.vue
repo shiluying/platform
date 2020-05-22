@@ -89,8 +89,5 @@ export default {
 </script>
 
 <style scoped>
-  @import "../styles/astyle.css";
   @import "../styles/style.css";
-  @import "../styles/responsive.css";
-  @import "../styles/translateelement.css";
 </style>

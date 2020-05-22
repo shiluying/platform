@@ -85,7 +85,7 @@ export default {
       this.FormData = {
         good_id: '',
         state: '待审核',
-        photo: '',
+        photo: [],
         good_describe: '',
         price: ''
       }

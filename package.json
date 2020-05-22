@@ -14,6 +14,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "ant-design-vue": "^1.6.0",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
     "cnpm": "^6.1.1",

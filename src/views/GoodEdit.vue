@@ -13,7 +13,7 @@
             :on-remove="handleRemove"
             :on-success="handleSuccess"
             :file-list="FormData.photo"
-            list-type="picture">
+            list-type="picture" >
             <el-button size="small" type="primary">点击上传</el-button>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
@@ -22,7 +22,12 @@
           <el-input v-model="FormData.good_describe"></el-input>
         </el-form-item>
         <el-form-item label="商品价格" prop="price" >
-          <el-input v-model="FormData.price"></el-input>
+          <a-input-number
+            :default-value="100"
+            :formatter="value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+            :parser="value => value.replace(/\$\s?|(,*)/g, '')"
+            v-model="FormData.price"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -49,28 +54,18 @@ export default {
   },
   methods: {
     handleRemove (file, fileList) {
-      this.fileList = fileList
+      this.FormData.photo = fileList
+      console.log(this.FormData.photo)
     },
     handlePreview (file) {
       console.log(file)
-      console.log(this.fileList)
+      console.log(this.FormData.photo)
     },
     handleSuccess (response, file, fileList) {
       console.log(file)
       if (response.status === 200) {
-        this.$message({
-          message: `文件${response.data.name}上传成功`,
-          type: 'success',
-          duaration: 1000
-        })
-        this.fileList = fileList.filter(file => {
+        this.FormData.photo = fileList.filter(file => {
           return file.response.data
-        })
-      } else {
-        this.$message({
-          message: `文件${response.data}上传失败`,
-          type: 'error',
-          duaration: 1000
         })
       }
     },
@@ -85,8 +80,9 @@ export default {
         if (valid) {
           this.GoodEdit.show = false
           let photoData = []
-          for (let i = 0; i < this.fileList.length; i++) {
-            let data = this.fileList[i].response.data
+          let fileList = this.FormData.photo
+          for (let i = 0; i < fileList.length; i++) {
+            let data = fileList[i].response.data
             photoData.push({
               name: data.name,
               url: data.url

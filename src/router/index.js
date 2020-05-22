@@ -10,9 +10,9 @@ import UserManage from '@/views/UserManage'
 import GoodManage from '@/views/GoodManage'
 
 import UserComment from '@/views/UserComment'
-import GoodSearch from '@/views/GoodSearch'
 import Good from '@/views/Good'
 import GoodInfo from '@/views/GoodInfo'
+import OrderInfo from '@/views/OrderInfo'
 Vue.use(Router)
 Vue.prototype.$axios = Axios
 
@@ -49,21 +49,21 @@ export default new Router({
     },
     {
       path: '/UserContainer',
-      redirect: '/UserContainer/goodsearch',
+      redirect: '/UserContainer/good',
       name: 'UserContainer',
       component: UserContainer,
       children: [
         {
-          path: '/UserContainer/goodsearch', name: '商品搜索', component: GoodSearch
-        },
-        {
           path: '/UserContainer/good', name: '主页', component: Good
         },
         {
-          path: '/UserContainer/usercomment', name: '用户评论', component: UserComment
+          path: '/UserContainer/userComment', name: '用户评论', component: UserComment
         },
         {
           path: '/UserContainer/goodInfo', name: '商品信息', component: GoodInfo
+        },
+        {
+          path: '/UserContainer/orderInfo', name: '订单信息', component: OrderInfo
         }
       ]
     }

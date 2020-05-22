@@ -3,7 +3,7 @@
     <el-col :span="10" v-for="order in this.orderList" :key="order.order_id" :offset="1">
       <el-card style="height:  300px;">
         <el-row>
-        <el-col :span="8" style="padding: 14px;">
+        <el-col :span="10" style="padding: 14px;">
           <div style="font-size: 15px;text-align: left;height: 200px;" >
             <el-row><b>订单ID: </b>{{order.order_id}}</el-row>
             <el-row><b>商品ID: </b>{{order.good_id}}</el-row>
@@ -11,12 +11,15 @@
             <el-row><b>实付款:</b> {{order.price}}</el-row>
             <el-row><b>卖家ID:</b> {{order.seller_id}}</el-row>
             <el-row><b>买家ID:</b> {{order.buyer_id}}</el-row>
+            <el-row><b>交易地址:</b> {{order.place}}</el-row>
+            <el-row><b>交易时间:</b> {{order.date}}</el-row>
             <el-row><b>创建时间:</b> {{order.time}}</el-row>
           </div>
         </el-col>
           <el-col :span="5" style="padding: 14px;float: right;text-align: center;" >
             <div  v-if="order.state == '待收货'">
               <el-button type="primary" @click="changeOrderState(order.order_id,2)">确认收货</el-button>
+              <el-button type="danger" @click="cancelBuy(order.order_id,order.good_id)">取消订单</el-button>
             </div>
             <div  v-else-if="order.state == '待付款'">
               <el-button type="primary" @click="confirmBuy(order.order_id,order.good_id)">付款</el-button><br/><br/>
