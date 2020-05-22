@@ -233,6 +233,7 @@ export default {
             if (response.data.status === 200) {
               _this.goodList = response.data.data
               // 对数据进行处理
+              var tempList = []
               _this.goodList.map(function (val) {
                 if (val.photo !== null) {
                   val.photo = '[' + val.photo + ']'
@@ -240,16 +241,20 @@ export default {
                 }
                 if (val.state === 0) {
                   val.state = '待审核'
-                } else if (val.state === -1) {
-                  val.state = '审核失败'
-                } else if (val.state === 1) {
-                  val.state = '已发布'
-                } else if (val.state === 2) {
-                  val.state = '已锁定'
-                } else if (val.state === 3) {
-                  val.state = '已交易'
+                } else {
+                  if (val.state === -1) {
+                    val.state = '审核失败'
+                  } else if (val.state === 1) {
+                    val.state = '已发布'
+                  } else if (val.state === 2) {
+                    val.state = '已锁定'
+                  } else if (val.state === 3) {
+                    val.state = '已交易'
+                  }
+                  tempList.push(val)
                 }
               })
+              _this.goodList = tempList
             } else {
               _this.$alert(response.msg, 'info', {
                 confirmButtonText: 'ok'
