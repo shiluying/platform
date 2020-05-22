@@ -1,26 +1,18 @@
 <template>
   <div>
     <el-dialog title="确认订单" :visible.sync="OrderCheck.show">
-      <el-form :model="FormData" ref="orderForm" label-width="100px" disabled="false">
-        <el-form-item label="商品ID" prop="good_id">
-          <el-input v-model="FormData.good_id"></el-input>
-        </el-form-item>
-        <el-form-item label="商品状态" prop="state">
-          <el-input v-model="FormData.state"></el-input>
-        </el-form-item>
-        <el-form-item label="商品描述" prop="good_describe">
-          <el-input v-model="FormData.good_describe"></el-input>
-        </el-form-item>
-        <el-form-item label="商品价格" prop="price">
-          <el-input v-model="FormData.price"></el-input>
-        </el-form-item>
-        <el-form-item label="卖家ID" prop="user_id">
-          <el-input v-model="FormData.user_id"></el-input>
-        </el-form-item>
-      </el-form>
+      <div style="font-size: 20px;text-align: left;height: 200px;">
+        <el-row><b>订单ID: </b>{{OrderData.order_id}}</el-row>
+        <el-row><b>商品ID: </b>{{OrderData.good_id}}</el-row>
+        <el-row><b>商品状态:</b> {{OrderData.state}}</el-row>
+        <el-row><b>商品价格:</b> {{OrderData.price}}</el-row>
+        <el-row><b>卖家ID:</b> {{OrderData.seller_id}}</el-row>
+        <el-row><b>买家ID:</b> {{OrderData.buyer_id}}</el-row>
+        <el-row><b>创建时间:</b> {{OrderData.time}}</el-row>
+      </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="sendCheck(false)">取 消</el-button>
-        <el-button type="primary" @click="sendCheck(true)">确 定</el-button>
+        <el-button @click="cancelBuy()">取 消</el-button>
+        <el-button type="primary" @click="confirmBuy()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -31,28 +23,63 @@ export default {
   name: 'OrderCheck',
   props: {
     OrderCheck: Object,
-    FormData: Object
+    OrderData: Object
   },
   methods: {
-    sendCheck (isOrder) {
-      if (isOrder) {
-        this.FormData.state = 4
-      } else {
-        this.FormData.state = 2
-      }
-      var _this = this
-      this.$axios.get('/api/changeGoodState/' + _this.FormData.good_id + '/' + _this.FormData.state)
-        .then(
-          function (response) {
-            if (response.data) {
-              _this.$emit('update', isOrder)
+    cancelBuy () {
+      let _this = this
+      this.$axios.get('/api/cancelOrder/', {
+        params: {
+          order_id: _this.OrderData.order_id
+        }
+      }).then(
+        function (response) {
+          if (response.status === 200) {
+            if (response.data.status === 200) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+              _this.$emit('update', false)
+              _this.OrderCheck.show = false
+            } else {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
             }
           }
-        )
+        }
+      )
         .catch(function (error) { // 请求失败处理
           console.log(error)
         })
-      _this.OrderCheck.show = false
+    },
+    confirmBuy () {
+      let _this = this
+      this.$axios.get('/api/updateOrderStateById/', {
+        params: {
+          order_id: _this.OrderData.order_id,
+          state: 1
+        }
+      }).then(
+        function (response) {
+          if (response.status === 200) {
+            if (response.data.status === 200) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+              _this.$emit('update', true)
+              _this.OrderCheck.show = false
+            } else {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        }
+      )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
     }
   }
 }
