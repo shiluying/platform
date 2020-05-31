@@ -18,31 +18,46 @@
           </div>
         </el-col>
           <el-col :span="5" style="padding: 14px;float: right;text-align: center;" >
-            <div  v-if="order.state == '待收货'">
+            <div  v-if="order.state == '待收货' && order.buyer_id===user_id">
               <el-button type="primary" @click="confirmGood(order.order_id,order.good_id,order.num)">确认收货</el-button>
               <el-button type="danger" @click="cancelBuy(order.order_id)">取消订单</el-button>
             </div>
-            <div  v-else-if="order.state == '待付款'">
+            <div  v-else-if="order.state == '待付款' && order.buyer_id===user_id">
               <el-button type="primary" @click="confirmBuy(order.order_id)">付款</el-button><br/><br/>
               <el-button type="danger" @click="cancelBuy(order.order_id)">取消订单</el-button>
             </div>
-            <div  v-if="order.state == '待评价'">
-              <el-button type="" @click="doUserComment(order.good_id,order.num)">进行用户评价</el-button>
-              <el-button type="" @click="doGoodComment">进行商品评价</el-button>
+            <div  v-else-if="order.state == '已完成' && order.buyer_id==user_id">
+              <el-button type="" @click="doSellerUserComment(order)">对卖家进行评价</el-button>
+              <el-button type="" @click="doGoodComment(order)">进行商品评价</el-button>
+            </div>
+            <div  v-else-if="order.state == '已完成' && order.seller_id==user_id">
+              <el-button type="" @click="doBuyerUserComment(order)">对买家进行评价</el-button>
             </div>
         </el-col>
         </el-row>
       </el-card>
       <br/>
     </el-col>
+    <UserCommentAdd :UserCommentAdd="UserCommentAdd" :FormData="FormData" @update="receive"></UserCommentAdd>
+    <GoodCommentAdd :GoodCommentAdd="GoodCommentAdd" :FormData="FormData" @update="receive"></GoodCommentAdd>
   </div>
 </template>
 
 <script>
+import UserCommentAdd from '@/views/comment/UserCommentAdd'
+import GoodCommentAdd from '@/views/comment/GoodCommentAdd'
 export default {
   name: 'OrderInfo',
+  components: {UserCommentAdd, GoodCommentAdd},
   data: function () {
     return {
+      UserCommentAdd: {
+        show: false
+      },
+      GoodCommentAdd: {
+        show: false
+      },
+      user_id: sessionStorage.getItem('user_id'),
       css_width: '333px',
       css_height: '500px',
       filter: '',
@@ -55,49 +70,31 @@ export default {
         state: '',
         time: ''
       },
-      OrderCheck: {
-        show: false
+      FormData: {
+        comment: '',
+        photo: '',
+        sender_id: '',
+        receiver_id: '',
+        good_id: ''
       }
     }
   },
 
   methods: {
-    doUserComment (goodid, num) {
-      // this.$message({
-      //   message: '恭喜你，这是一条成功消息',
-      //   type: 'success'
-      // })
-      // let _this = this
-      // this.$prompt('对用户进行评价', '评价', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消'
-      // }).then(({ value }) => {
-      //   _this.$message({
-      //     type: 'success',
-      //     message: '你的邮箱是: ' + value
-      //   })
-      // }).catch(() => {
-      //   _this.$message({
-      //     type: 'info',
-      //     message: '取消输入'
-      //   })
-      // })
+    doBuyerUserComment (order) {
+      this.FormData.sender_id = this.user_id
+      this.FormData.receiver_id = order.buyer_id
+      this.UserCommentAdd.show = true
     },
-    doGoodComment () {
-      this.$prompt('对商品进行评价', '评价', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '你的邮箱是: ' + value
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        })
-      })
+    doSellerUserComment (order) {
+      this.FormData.sender_id = this.user_id
+      this.FormData.receiver_id = order.seller_id
+      this.UserCommentAdd.show = true
+    },
+    doGoodComment (order) {
+      this.FormData.buyer_id = this.user_id
+      this.FormData.good_id = order.good_id
+      this.GoodCommentAdd.show = true
     },
     confirmGood (orderid, goodid, num) {
       let _this = this
@@ -193,9 +190,7 @@ export default {
               } else if (val.state === 1) {
                 val.state = '待收货'
               } else if (val.state === 2) {
-                val.state = '待评价'
-              } else if (val.state === 3) {
-                val.state = '已评价'
+                val.state = '已完成'
               }
             })
           } else {
@@ -208,6 +203,38 @@ export default {
         .catch(function (error) { // 请求失败处理
           console.log(error)
         })
+    },
+    receive: function (data) {
+      console.log(data)
+      let _this = this
+      if (data.good_id !== '') {
+        this.$axios.post('/api/addGoodComment/', data).then(
+          function (response) {
+            if (response.status === 200) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+          .catch(function (error) { // 请求失败处理
+            console.log(error)
+          })
+      } else {
+        this.$axios.post('/api/addUserComment/', data).then(
+          function (response) {
+            if (response.status === 200) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+          .catch(function (error) { // 请求失败处理
+            console.log(error)
+          })
+      }
+      this.refresh()
     }
   },
   created () {

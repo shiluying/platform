@@ -6,8 +6,8 @@
           <div class="col-md-6">
             <div class="action pull-right">
               <ul>
-                <li><a href=""><i class="fa fa-user"></i>我的信息</a></li>
-                <li><a href="/AdminLogin"><i class="fa fa-lock"></i>退出登录</a></li>
+                <li><a  @click="userInfoEdit"><i class="fa fa-user"></i>我的信息</a></li>
+                <li><a @click="logout"><i class="fa fa-lock" ></i>退出登录</a></li>
               </ul>
             </div>
           </div>
@@ -58,16 +58,15 @@ export default {
     }
   },
   methods: {
+    userInfoEdit () {
+
+    },
     toggleSideBar () {
       this.isCollapse = !this.isCollapse
     },
     logout: function () {
-      this.$confirm('确认退出?', '提示', {})
-        .then(() => {
-          sessionStorage.removeItem('user')
-          this.$router.push('/login')
-        })
-        .catch(() => { })
+      sessionStorage.removeItem('user_id')
+      this.$router.push('/login')
     },
     handleOpen (key, keyPath) {
       console.log(key, keyPath)

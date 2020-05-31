@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-dialog title="修改信息" :visible.sync="UserInfo.show">
+    <el-dialog title="添加用户评价" :visible.sync="UserCommentAdd.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" >
-        <el-form-item label="买家" prop="buyer_id">
-          <p style="float: left">{{FormData.buyer_id}}</p>
+        <el-form-item label="评价方" prop="sender_id">
+          <p style="float: left">{{FormData.sender_id}}</p>
         </el-form-item>
-        <el-form-item label="被评价商品" prop="comment">
-          <p style="float: left">{{FormData.good_id}}</p>
+        <el-form-item label="被评价方" prop="receiver_id">
+          <p style="float: left">{{FormData.receiver_id}}</p>
         </el-form-item>
         <el-form-item label="评价" prop="comment">
           <el-input v-model="FormData.comment"></el-input>
@@ -14,7 +14,7 @@
         <el-form-item label="上传图片" prop="photo">
           <el-upload
             class="upload-demo"
-            action="/api/upLoadGoodCommentImg"
+            action="/api/upLoadUserCommentImg"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :on-success="handleSuccess"
@@ -26,7 +26,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="UserInfo.show = false">取 消</el-button>
+        <el-button @click="UserCommentAdd.show = false">取 消</el-button>
         <el-button @click="sendFormData('editForm')" type="primacy">确 定</el-button>
       </div>
     </el-dialog>
@@ -35,9 +35,9 @@
 
 <script>
 export default {
-  name: 'UserInfo',
+  name: 'UserCommentAdd',
   props: {
-    UserInfo: Object,
+    UserCommentAdd: Object,
     FormData: Object
   },
   data: function () {
@@ -66,7 +66,7 @@ export default {
     sendFormData (editForm) {
       this.$refs[editForm].validate((valid) => {
         if (valid) {
-          this.UserInfo.show = false
+          this.UserCommentAdd.show = false
           let photoData = []
           let fileList = this.FormData.photo
           for (let i = 0; i < fileList.length; i++) {

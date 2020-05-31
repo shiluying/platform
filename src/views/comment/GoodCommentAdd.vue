@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog title="修改信息" :visible.sync="UserInfo.show">
+    <el-dialog title="添加商品评价" :visible.sync="GoodCommentAdd.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" >
         <el-form-item label="买家" prop="buyer_id">
           <p style="float: left">{{FormData.buyer_id}}</p>
@@ -26,7 +26,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="UserInfo.show = false">取 消</el-button>
+        <el-button @click="GoodCommentAdd.show = false">取 消</el-button>
         <el-button @click="sendFormData('editForm')" type="primacy">确 定</el-button>
       </div>
     </el-dialog>
@@ -35,9 +35,9 @@
 
 <script>
 export default {
-  name: 'UserInfo',
+  name: 'GoodCommentAdd',
   props: {
-    UserInfo: Object,
+    GoodCommentAdd: Object,
     FormData: Object
   },
   data: function () {
@@ -66,7 +66,7 @@ export default {
     sendFormData (editForm) {
       this.$refs[editForm].validate((valid) => {
         if (valid) {
-          this.UserInfo.show = false
+          this.GoodCommentAdd.show = false
           let photoData = []
           let fileList = this.FormData.photo
           for (let i = 0; i < fileList.length; i++) {
