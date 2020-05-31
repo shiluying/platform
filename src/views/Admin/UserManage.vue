@@ -1,10 +1,6 @@
 <template>
   <div id="app">
     <el-row style="text-align: center;">
-      <el-button
-        size="mini"
-        @click="doAdd()"
-      >添加用户</el-button>
       <div class="table">
         <el-table
           :data="userList"
@@ -18,10 +14,17 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="用户名"
+          label="用户名"
+          width="">
+          <template slot-scope="scope">
+            <span>{{ scope.row.name}}</span>
+          </template>
+        </el-table-column>
+          <el-table-column
+            label="邮箱"
             width="">
             <template slot-scope="scope">
-              <span>{{ scope.row.name}}</span>
+              <span>{{ scope.row.email}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -62,7 +65,7 @@
 </template>
 
 <script>
-import UserEdit from '@/views/UserEdit'
+import UserEdit from '@/views/Admin/UserEdit'
 export default {
   name: 'usermanage',
   components: {UserEdit},
@@ -83,49 +86,43 @@ export default {
       FormData: {
         user_id: '',
         name: '',
-        pwd: '',
+        email: '',
         type: '',
         examine: ''
       }
     }
   },
   methods: {
-    doAdd () {
-      this.UserEdit.show = true
-      this.FormData = {
-        user_id: '',
-        name: '',
-        pwd: '',
-        type: '',
-        examine: ''
-      }
-    },
     doEdit (row) {
       this.userInfo = row
+      if (this.userInfo.type === '普通用户') {
+        this.userInfo.type = 0
+      } else if (this.userInfo.type === '管理员') {
+        this.userInfo.type = 1
+      }
+      if (this.userInfo.examine === '无') {
+        this.userInfo.examine = 0
+      } else if (this.userInfo.examine === '有') {
+        this.userInfo.examine = 1
+      }
       this.UserEdit.show = true
       this.FormData = {
         user_id: row.user_id,
         name: row.name,
-        pwd: '...',
+        email: row.email,
         type: row.type,
         examine: row.examine
       }
     },
     doDelete: function (row) {
       var _this = this
-      this.$axios.get('/api/deleteUser/' + row.user_id)
+      this.$axios.delete('/api/deleteUser/?id=' + row.user_id)
         .then(
           function (response) {
-            if (response.data.status === 200) {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-              _this.refresh()
-            } else {
-              _this.$alert(response.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            }
+            _this.$alert(response.data.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
+            _this.refresh()
           }
         )
         .catch(function (error) { // 请求失败处理
@@ -133,59 +130,45 @@ export default {
         })
     },
     receive: function (data) {
+      console.log(data)
       var _this = this
-      if (this.userInfo === null) {
-        this.$axios.get('/api/addUser/' + data.user_id + '/' + data.name + '/' + data.pwd + '/' + data.type + '/' + data.examine)
+      // 修改用户类型
+      if (this.userInfo.type !== data.type) {
+        this.$axios.put('/api/changeUserType/', data)
           .then(
             function (response) {
-              if (response.data.status === 200) {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-                _this.refresh()
-              } else {
-                _this.$alert(response.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-              }
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
             }
           )
           .catch(function (error) { // 请求失败处理
             console.log(error)
           })
-      } else {
-        if (this.userInfo.type !== data.type) {
-          this.$axios.get('/api/changeUserType/' + this.userInfo.user_id + '/' + data.type)
-            .then(
-              function (response) {
-                if (response.data) {
-                  _this.refresh()
-                }
-              }
-            )
-            .catch(function (error) { // 请求失败处理
-              console.log(error)
-            })
-        }
-        if (this.userInfo.examine !== data.examine) {
-          this.$axios.get('/api/changeUserExamine/' + this.userInfo.user_id + '/' + data.examine)
-            .then(
-              function (response) {
-                if (response.data) {
-                  _this.refresh()
-                }
-              }
-            )
-            .catch(function (error) { // 请求失败处理
-              console.log(error)
-            })
-        }
-        this.userInfo = null
       }
+      // 修改用户权限
+      if (this.userInfo.examine !== data.examine) {
+        this.$axios.put('/api/changeUserExamine/', data)
+          .then(
+            function (response) {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          )
+          .catch(function (error) { // 请求失败处理
+            console.log(error)
+          })
+      }
+      _this.refresh()
     },
     refresh () {
       var _this = this
-      this.$axios.get('/api/findUser')
+      // 普通用户没有用户管理权限
+      if (sessionStorage.getItem('type') === 0) {
+        return
+      }
+      this.$axios.get('/api/findAllUser')
         .then(
           function (response) {
             if (response.data.status === 200) {
@@ -216,35 +199,7 @@ export default {
     }
   },
   mounted () {
-    var _this = this
-    this.$axios.get('/api/findUser')
-      .then(
-        function (response) {
-          if (response.data.status === 200) {
-            _this.userList = response.data.data
-            // 对数据进行处理
-            _this.userList.map(function (val) {
-              if (val.type === 0) {
-                val.type = '普通用户'
-              } else if (val.type === 1) {
-                val.type = '管理员'
-              }
-              if (val.examine === 0) {
-                val.examine = '无'
-              } else if (val.examine === 1) {
-                val.examine = '有'
-              }
-            })
-          } else {
-            _this.$alert(response.msg, 'info', {
-              confirmButtonText: 'ok'
-            })
-          }
-        }
-      )
-      .catch(function (error) { // 请求失败处理
-        console.log(error)
-      })
+    this.refresh()
   }
 }
 </script>

@@ -4,19 +4,18 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span style="text-align: left;">用户评论</span>
-        <!--<el-button style="float: right; padding: 3px"  @click="doShow(comment.buyer_id)">查看商品</el-button>-->
       </div>
       <div class="text item" style="text-align: left;">
-        商品ID:{{comment.comment_id}}
+        评论ID:{{comment.comment_id}}
       </div>
       <div class="text item" style="text-align: left;">
         评价：{{comment.comment}}
       </div>
-      <div class="text item" style="text-align: left;">
-        买家ID: {{comment.buyer_id}}
+      <div style="height: 300px;" v-if="comment.photo!==null">
+        <img :src="comment.photo.url" class="image" style="height: 100%;">
       </div>
-      <div class="text item" style="text-align: left;">
-        卖家ID： {{comment.seller_id}}
+      <div style="height: 300px;" v-else>
+        <img :src="comment.photo" class="image" style="height: 100%;">
       </div>
     </el-card>
     <br/>
@@ -31,9 +30,8 @@ export default {
     return {
       userCommentList: [{
         comment_id: '',
-        comment: '',
-        seller_id: '',
-        buyer_id: ''
+        photo: '',
+        comment: ''
 
       }]
     }
@@ -42,7 +40,7 @@ export default {
     var _this = this
     this.$axios.get('/api/getUserComment/', {
       params: {
-        user_id: sessionStorage.getItem('user_id')
+        sender_id: sessionStorage.getItem('user_id')
       }
     })
       .then(

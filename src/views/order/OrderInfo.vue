@@ -7,7 +7,8 @@
           <div style="font-size: 15px;text-align: left;height: 200px;" >
             <el-row><b>订单ID: </b>{{order.order_id}}</el-row>
             <el-row><b>商品ID: </b>{{order.good_id}}</el-row>
-            <el-row><b>商品状态:</b> {{order.state}}</el-row>
+            <el-row><b>商品数量:</b> {{order.num}}</el-row>
+            <el-row><b>订单状态:</b> {{order.state}}</el-row>
             <el-row><b>实付款:</b> {{order.price}}</el-row>
             <el-row><b>卖家ID:</b> {{order.seller_id}}</el-row>
             <el-row><b>买家ID:</b> {{order.buyer_id}}</el-row>
@@ -18,15 +19,15 @@
         </el-col>
           <el-col :span="5" style="padding: 14px;float: right;text-align: center;" >
             <div  v-if="order.state == '待收货'">
-              <el-button type="primary" @click="changeOrderState(order.order_id,2)">确认收货</el-button>
-              <el-button type="danger" @click="cancelBuy(order.order_id,order.good_id)">取消订单</el-button>
+              <el-button type="primary" @click="confirmGood(order.order_id,order.good_id,order.num)">确认收货</el-button>
+              <el-button type="danger" @click="cancelBuy(order.order_id)">取消订单</el-button>
             </div>
             <div  v-else-if="order.state == '待付款'">
-              <el-button type="primary" @click="confirmBuy(order.order_id,order.good_id)">付款</el-button><br/><br/>
-              <el-button type="danger" @click="cancelBuy(order.order_id,order.good_id)">取消订单</el-button>
+              <el-button type="primary" @click="confirmBuy(order.order_id)">付款</el-button><br/><br/>
+              <el-button type="danger" @click="cancelBuy(order.order_id)">取消订单</el-button>
             </div>
             <div  v-if="order.state == '待评价'">
-              <el-button type="" @click="doUserComment">进行用户评价</el-button>
+              <el-button type="" @click="doUserComment(order.good_id,order.num)">进行用户评价</el-button>
               <el-button type="" @click="doGoodComment">进行商品评价</el-button>
             </div>
         </el-col>
@@ -61,11 +62,11 @@ export default {
   },
 
   methods: {
-    doUserComment () {
-      this.$message({
-        message: '恭喜你，这是一条成功消息',
-        type: 'success'
-      })
+    doUserComment (goodid, num) {
+      // this.$message({
+      //   message: '恭喜你，这是一条成功消息',
+      //   type: 'success'
+      // })
       // let _this = this
       // this.$prompt('对用户进行评价', '评价', {
       //   confirmButtonText: '确定',
@@ -98,17 +99,48 @@ export default {
         })
       })
     },
-    cancelBuy (orderid, goodid) {
+    confirmGood (orderid, goodid, num) {
       let _this = this
-      this.$axios.get('/api/cancelOrder/', {
+      var data = {
+        order_id: orderid,
+        state: 2
+      }
+      this.$axios.put('/api/changeOrderState/', data).then(
+        function (response) {
+          if (response.status === 200) {
+            if (response.data.status === 200) {
+              _this.buyGood(goodid, num)
+              _this.refresh()
+            } else {
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        }
+      )
+        .catch(function (error) { // 请求失败处理
+          console.log(error)
+        })
+    },
+    cancelBuy (orderid) {
+      this.$axios.delete('/api/deleteOrder/', {
         params: {
           order_id: orderid
         }
-      }).then(
+      })
+      this.refresh()
+    },
+    confirmBuy (orderid) {
+      let _this = this
+      var data = {
+        order_id: orderid,
+        state: 1
+      }
+      this.$axios.put('/api/changeOrderState/', data).then(
         function (response) {
           if (response.status === 200) {
             if (response.data.status === 200) {
-              _this.changGoodState(1, goodid)
               _this.refresh()
             } else {
               _this.$alert(response.data.msg, 'info', {
@@ -122,45 +154,19 @@ export default {
           console.log(error)
         })
     },
-    confirmBuy (orderid, goodid) {
+    buyGood (goodid, num) {
       let _this = this
-      this.$axios.get('/api/updateOrderStateById/', {
-        params: {
-          order_id: orderid,
-          state: 1
-        }
-      }).then(
-        function (response) {
-          if (response.status === 200) {
-            if (response.data.status === 200) {
-              _this.changGoodState(3, goodid)
-              _this.refresh()
-            } else {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            }
-          }
-        }
-      )
-        .catch(function (error) { // 请求失败处理
-          console.log(error)
-        })
-    },
-    changGoodState (num, goodid) {
-      let _this = this
-      this.$axios.get('/api/changeGoodState/' + goodid + '/' + num)
+      var data = {
+        good_id: goodid,
+        num: num
+      }
+      console.log(num)
+      this.$axios.put('/api/buyGood/', data)
         .then(
           function (response) {
-            if (response.data.status === 200) {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            } else {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            }
+            _this.$alert(response.data.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
           }
         )
         .catch(function (error) { // 请求失败处理
@@ -169,7 +175,7 @@ export default {
     },
     refresh () {
       var _this = this
-      this.$axios.get('/api/getGoodOrderById', {
+      this.$axios.get('/api/getGoodOrderByUserId', {
         params: {
           user_id: sessionStorage.getItem('user_id')
         }
@@ -177,6 +183,7 @@ export default {
         function (response) {
           if (response.data.status === 200) {
             _this.orderList = response.data.data
+            console.log(_this.orderList)
             // 对数据进行处理
             _this.orderList.map(function (val) {
               if (val.state === 0) {
@@ -201,22 +208,6 @@ export default {
         .catch(function (error) { // 请求失败处理
           console.log(error)
         })
-    },
-    changeOrderState (id, state) {
-      let _this = this
-      this.$axios.get('/api/updateOrderStateById', {
-        params: {
-          order_id: id,
-          state: state
-        }
-      }).then(function (response) {
-        if (response.data.status === 200) {
-          _this.refresh()
-          _this.$alert(response.data.msg, 'info', {
-            confirmButtonText: 'ok'
-          })
-        }
-      })
     }
   },
   created () {

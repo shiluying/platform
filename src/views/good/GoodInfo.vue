@@ -2,7 +2,6 @@
 <div class="app">
   <el-col :span="24">
       <el-button
-        size="mini"
         @click="doAdd()"
       >添加商品</el-button>
   </el-col>
@@ -16,7 +15,7 @@
         <img :src="good.photo" class="image" style="height: 100%;">
       </div>
       <div style="padding: 14px;">
-        <span><b>商品ID: </b>{{good.good_id}}</span>
+        <span><b>商品名称: </b>{{good.good_name}}</span>
         <span><b>商品状态:</b> {{good.state}}</span>
         <p><b>商品描述:</b> {{good.good_describe}}</p>
         <span><b>商品价格:</b> {{good.price}}</span>
@@ -36,7 +35,7 @@
 </template>
 
 <script>
-import GoodEdit from '@/views/GoodEdit'
+import GoodEdit from '@/views/Good/GoodEdit'
 export default {
   name: 'GoodInfo',
   components: {GoodEdit},
@@ -55,7 +54,10 @@ export default {
         {
           good_id: '',
           state: '',
-          photo: '',
+          photo: [{
+            name: '',
+            url: ''
+          }],
           good_describe: '',
           price: ''
         }
@@ -73,9 +75,11 @@ export default {
     doEdit (good) {
       this.FormData = {
         good_id: good.good_id,
+        good_name: good.good_name,
         state: good.state,
         photo: good.photo,
         good_describe: good.good_describe,
+        num: good.num,
         price: good.price
       }
       this.GoodEdit.show = true
@@ -92,11 +96,16 @@ export default {
     },
     refresh () {
       var _this = this
-      this.$axios.get('/api/findAllByUserId/' + sessionStorage.getItem('user_id'))
+      this.$axios.get('/api/findGoodByUserId/', {
+        params: {
+          user_id: sessionStorage.getItem('user_id')
+        }
+      })
         .then(
           function (response) {
             if (response.status === 200) {
               _this.goodList = response.data.data
+              console.log(_this.goodList)
               // 对数据进行处理
               _this.goodList.map(function (val) {
                 if (val.photo !== null) {
@@ -105,14 +114,16 @@ export default {
                 }
                 if (val.state === 0) {
                   val.state = '待审核'
-                } else if (val.state === -1) {
-                  val.state = '审核失败'
-                } else if (val.state === 1) {
-                  val.state = '已发布'
-                } else if (val.state === 2) {
-                  val.state = '已锁定'
-                } else if (val.state === 3) {
-                  val.state = '已交易'
+                } else {
+                  if (val.state === -1) {
+                    val.state = '审核失败'
+                  } else if (val.state === 1) {
+                    val.state = '已发布'
+                  } else if (val.state === 2) {
+                    val.state = '已锁定'
+                  } else if (val.state === 3) {
+                    val.state = '已交易'
+                  }
                 }
               })
             } else {
@@ -129,24 +140,18 @@ export default {
     receive: function (data) {
       console.log(data)
       let _this = this
-      if (data.state === -1) {
-        this.$axios.get('/api/deleteGood/', {
+      if (data.state === -1) { // 删除商品
+        this.$axios.delete('/api/deleteGood/', {
           params: {
             id: _this.FormData.good_id
           }
         }).then(
           function (response) {
             if (response.status === 200) {
-              if (response.data.status === 200) {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-                _this.refresh()
-              } else {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-              }
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+              _this.refresh()
             }
           }
         )
@@ -154,102 +159,40 @@ export default {
             console.log(error)
           })
       } else if (data.good_id === '') { // 添加商品
-        this.$axios.get('/api/addGood/', {
-          params: {
-            good_describe: data.good_describe,
-            photo: data.photo,
-            price: data.price,
-            user_id: sessionStorage.getItem('user_id')
-          }
-        })
+        data.state = 0
+        this.$axios.post('/api/addGood/', data)
           .then(
             function (response) {
-              if (response.data.status === 200) {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-                _this.refresh()
-              } else {
-                _this.$alert(response.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-              }
+              _this.$alert(response.data.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
             }
           )
           .catch(function (error) { // 请求失败处理
             console.log(error)
           })
       } else { // 修改商品
-        this.$axios.get('/api/changeGood/', {
-          params: {
-            id: data.good_id,
-            state: 0,
-            good_describe: data.good_describe,
-            photo: data.photo,
-            price: data.price,
-            user_id: data.user_id
-          }
-        }).then(
+        data.state = 0
+        this.$axios.put('/api/changeGood/', data).then(
           function (response) {
-            if (response.status === 200) {
-              if (response.data.status === 200) {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-                _this.refresh()
-              } else {
-                _this.$alert(response.data.msg, 'info', {
-                  confirmButtonText: 'ok'
-                })
-              }
-            }
+            _this.$alert(response.data.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
           }
         )
           .catch(function (error) { // 请求失败处理
             console.log(error)
           })
       }
+      _this.refresh()
     }
   },
   created () {
-    var _this = this
-    this.$axios.get('/api/findAllByUserId/' + sessionStorage.getItem('user_id'))
-      .then(
-        function (response) {
-          if (response.status === 200) {
-            _this.goodList = response.data.data
-            // 对数据进行处理
-            _this.goodList.map(function (val) {
-              if (val.photo !== null) {
-                val.photo = '[' + val.photo + ']'
-                val.photo = JSON.parse(val.photo)
-              }
-              if (val.state === 0) {
-                val.state = '待审核'
-              } else if (val.state === -1) {
-                val.state = '审核失败'
-              } else if (val.state === 1) {
-                val.state = '已发布'
-              } else if (val.state === 2) {
-                val.state = '已锁定'
-              } else if (val.state === 3) {
-                val.state = '已交易'
-              }
-            })
-          } else {
-            _this.$alert(response.msg, 'info', {
-              confirmButtonText: 'ok'
-            })
-          }
-        }
-      )
-      .catch(function (error) { // 请求失败处理
-        console.log(error)
-      })
+    this.refresh()
   }
 }
 </script>
 
 <style scoped>
-  @import "../styles/style.css";
+  @import "../../styles/style.css";
 </style>

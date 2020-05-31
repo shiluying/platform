@@ -2,8 +2,12 @@
   <div>
     <el-dialog title="修改/添加商品信息" :visible.sync="GoodEdit.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" >
+        <el-form-item label="商品名称" prop="name">
+          <el-input v-model="FormData.good_name"></el-input>
+        </el-form-item>
         <el-form-item label="商品状态" prop="state" >
-          <el-input v-model="FormData.state" v-bind:disabled="FormData.good_id"  ></el-input>
+          <el-input v-model="FormData.state" v-bind:disabled="FormData.good_id===''"  >
+          </el-input>
         </el-form-item>
         <el-form-item label="上传图片" prop="photo">
           <el-upload
@@ -21,6 +25,9 @@
         <el-form-item label="商品描述" prop="good_describe">
           <el-input v-model="FormData.good_describe"></el-input>
         </el-form-item>
+        <el-form-item label="商品数量" prop="num">
+          <a-input-number id="inputNumber" v-model="FormData.num" :min="1" :max="20"/>
+        </el-form-item>
         <el-form-item label="商品价格" prop="price" >
           <a-input-number
             :default-value="100"
@@ -31,9 +38,9 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="deleteGood">删除商品</el-button>
+        <el-button @click="deleteGood" type="danger">删除商品</el-button>
         <el-button @click="GoodEdit.show = false">取 消</el-button>
-        <el-button price="primary" @click="sendFormData('editForm')">确 定</el-button>
+        <el-button @click="sendFormData('editForm')" type="primacy">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -81,8 +88,12 @@ export default {
           this.GoodEdit.show = false
           let photoData = []
           let fileList = this.FormData.photo
+          console.log(fileList)
           for (let i = 0; i < fileList.length; i++) {
-            let data = fileList[i].response.data
+            let data = fileList[i]
+            if (this.FormData.good_id === '') {
+              data = fileList[i].response.data
+            }
             photoData.push({
               name: data.name,
               url: data.url

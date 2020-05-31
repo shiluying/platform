@@ -14,24 +14,39 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="商品名称"
+            width="">
+            <template slot-scope="scope">
+              <span>{{ scope.row.good_name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="商品状态"
             width="">
             <template slot-scope="scope">
               <span>{{ scope.row.state}}</span>
             </template>
           </el-table-column>
-          <!--<el-table-column-->
-            <!--label="商品图片"-->
-            <!--width="">-->
-            <!--<template slot-scope="scope">-->
+          <el-table-column
+            label="商品图片"
+            width="">
+            <template slot-scope="scope">
               <!--<span>{{ scope.row.photo}}</span>-->
-            <!--</template>-->
-          <!--</el-table-column>-->
+              <el-image :src="scope.row.photo[0].url" style="width: 200px;height: 200px;"/>
+            </template>
+          </el-table-column>
           <el-table-column
             label="商品描述"
             width="">
             <template slot-scope="scope">
               <span>{{ scope.row.good_describe}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="商品数量"
+            width="">
+            <template slot-scope="scope">
+              <span>{{ scope.row.num}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -78,7 +93,7 @@ export default {
         {
           good_id: '',
           state: '',
-          photo: '',
+          photo: {name: '', url: ''},
           good_describe: '',
           price: '',
           user_id: ''
@@ -88,13 +103,25 @@ export default {
   },
   methods: {
     refresh () {
+      if (sessionStorage.getItem('examine') === 0) {
+        return
+      }
       var _this = this
-      this.$axios.get('/api/findAllByState/0')
+      this.$axios.get('/api/findGoodByState/', {
+        params: {
+          state: 0
+        }
+      })
         .then(
           function (response) {
             _this.goodList = response.data.data
+            console.log(response.data.data)
             // 对数据进行处理
             _this.goodList.map(function (val) {
+              if (val.photo !== null) {
+                val.photo = '[' + val.photo + ']'
+                val.photo = JSON.parse(val.photo)
+              }
               if (val.state === 0) {
                 val.state = '待审核'
               } else if (val.state === -1) {
@@ -107,6 +134,7 @@ export default {
                 val.state = '已交易'
               }
             })
+            console.log(_this.goodList)
           }
         )
         .catch(function (error) { // 请求失败处理
@@ -114,20 +142,19 @@ export default {
         })
     },
     doRefuse: function (row) {
+      var data = {
+        good_id: row.good_id,
+        state: -1
+      }
+      console.log(data)
       var _this = this
-      this.$axios.get('/api/changeGoodState/' + row.good_id + '/-1')
+      this.$axios.put('/api/changeGoodState', data)
         .then(
           function (response) {
-            if (response.data.status === 200) {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-              _this.refresh()
-            } else {
-              _this.$alert(response.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            }
+            _this.$alert(response.data.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
+            _this.refresh()
           }
         )
         .catch(function (error) { // 请求失败处理
@@ -135,20 +162,19 @@ export default {
         })
     },
     doPass: function (row) {
+      var data = {
+        good_id: row.good_id,
+        state: 1
+      }
+      console.log(data)
       var _this = this
-      this.$axios.get('/api/changeGoodState/' + row.good_id + '/1')
+      this.$axios.put('/api/changeGoodState', data)
         .then(
           function (response) {
-            if (response.data.status === 200) {
-              _this.$alert(response.data.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-              _this.refresh()
-            } else {
-              _this.$alert(response.msg, 'info', {
-                confirmButtonText: 'ok'
-              })
-            }
+            _this.$alert(response.data.msg, 'info', {
+              confirmButtonText: 'ok'
+            })
+            _this.refresh()
           }
         )
         .catch(function (error) { // 请求失败处理
@@ -158,31 +184,7 @@ export default {
   },
 
   mounted () {
-    var _this = this
-    this.$axios.get('/api/findAllByState/0')
-      .then(
-        function (response) {
-          if (response.data.status === 200) {
-            _this.goodList = response.data.data
-            // 对数据进行处理
-            _this.goodList.map(function (val) {
-              if (val.state === 0) {
-                val.state = '待审核'
-              } else if (val.state === -1) {
-                val.state = '审核失败'
-              } else if (val.state === 1) {
-                val.state = '已发布'
-              } else if (val.state === 2) {
-                val.state = '已锁定'
-              } else if (val.state === 3) {
-                val.state = '已交易'
-              }
-            })
-          }
-        })
-      .catch(function (error) { // 请求失败处理
-        console.log(error)
-      })
+    this.refresh()
   }
 }
 </script>

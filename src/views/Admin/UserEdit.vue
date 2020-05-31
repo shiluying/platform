@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog title="修改/添加用户信息" :visible.sync="UserEdit.show">
+    <el-dialog title="修改用户信息" :visible.sync="UserEdit.show">
       <el-form :model="FormData" ref="editForm" label-width="100px" :rules="formrules">
         <el-form-item label="用户id" prop="user_id">
           <el-input v-model="FormData.user_id"></el-input>
@@ -8,8 +8,8 @@
         <el-form-item label="用户名" prop="name">
           <el-input v-model="FormData.name"></el-input>
         </el-form-item>
-        <el-form-item label="用户密码" prop="pwd">
-          <el-input v-model="FormData.pwd"></el-input>
+        <el-form-item label="用户邮箱" prop="email">
+          <el-input v-model="FormData.email"></el-input>
         </el-form-item>
         <el-form-item label="用户类型" prop="type"  @change="getType">
           <el-select v-model="FormData.type">
@@ -51,21 +51,21 @@ export default {
     return {
       typeList: [
         {
-          id: '0',
+          id: 0,
           value: '普通用户'
         },
         {
-          id: '1',
+          id: 1,
           value: '管理员'
         }
       ],
       examineList: [
         {
-          id: '0',
+          id: 0,
           value: '无'
         },
         {
-          id: '1',
+          id: 1,
           value: '有'
         }
       ],
@@ -73,7 +73,7 @@ export default {
       formrules: {
         user_id: [{required: true, message: '用户id不能为空', trigger: 'blur'}],
         name: [{required: true, message: '用户名不能为空', trigger: 'blur'}],
-        pwd: [{required: true, message: '密码不能为空', trigger: 'blur'}],
+        email: [{required: true, message: '邮箱不能为空', trigger: 'blur'}],
         type: [{required: true, message: '用户类型不能为空', trigger: 'blur'}],
         examine: [{required: true, message: '权限不能为空', trigger: 'blur'}]
       }
@@ -83,9 +83,20 @@ export default {
     sendFormData (editForm) {
       this.$refs[editForm].validate((valid) => {
         if (valid) {
+          console.log(this.FormData)
+          if (this.FormData.type === '普通用户') {
+            this.FormData.type = 0
+          } else if (this.FormData.type === '管理员') {
+            this.FormData.type = 1
+          }
+          if (this.FormData.examine === '无') {
+            this.FormData.examine = 0
+          } else if (this.FormData.examine === '有') {
+            this.FormData.examine = 1
+          }
+          console.log(this.FormData)
           this.UserEdit.show = false
           this.$emit('update', this.FormData)
-          this.FormData = ''
         } else {
           return false
         }

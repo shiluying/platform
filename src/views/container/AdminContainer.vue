@@ -1,20 +1,20 @@
 <template>
-    <el-container>
-      <el-header class="app-header">
-        <div class="top-bar">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="action pull-right">
-                <ul>
-                  <li><a href=""><i class="fa fa-user"></i>我的信息</a></li>
-                  <li><a href=""><i class="fa fa-lock"></i>退出登录</a></li>
-                </ul>
-              </div>
+  <el-container>
+    <el-header class="app-header">
+      <div class="top-bar">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="action pull-right">
+              <ul>
+                <li><a href=""><i class="fa fa-user"></i>我的信息</a></li>
+                <li><a href="/login"><i class="fa fa-lock"></i>退出登录</a></li>
+              </ul>
             </div>
           </div>
         </div>
-      </el-header>
-      <el-container>
+      </div>
+    </el-header>
+    <el-container>
       <el-aside>
         <div style="width: 60px; cursor: pointer;"
              @click.prevent="toggleSideBar">
@@ -27,7 +27,7 @@
             class="el-menu-vertical-demo"
             @open="handleOpen"
             :collapse="isCollapse">
-            <template v-for="route in $router.options.routes" v-if="route.path==='/UserContainer'&&route.children && route.children.length">
+            <template v-for="route in $router.options.routes" v-if="route.path==='/AdminContainer'&&route.children && route.children.length">
               <template v-for="item in route.children" >
                 <el-menu-item
                   :key="item.path"
@@ -42,15 +42,15 @@
         </div>
       </el-aside>
       <el-main >
-          <router-view/>
+        <router-view/>
       </el-main>
-      </el-container>
     </el-container>
+  </el-container>
 </template>
 
 <script>
 export default {
-  name: 'UserContainer',
+  name: 'AdminContainer',
   data () {
     return {
       user_id: '',
@@ -88,6 +88,6 @@ export default {
 }
 </script>
 
-<style scoped>
-  @import "../styles/style.css";
+<style>
+  @import "../../styles/style.css";
 </style>
