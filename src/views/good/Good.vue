@@ -34,6 +34,7 @@
             title="商品信息"
             @back="nowIndex = 0"
           />
+          <el-row>
             <el-col :span="8" style="float: left">
               <div v-for="photo in FormData.photo" :key="photo.url">
                 <img :src="photo.url" style="width: 200px;height: 200px;"/>
@@ -49,6 +50,30 @@
               <el-row><b>卖家ID:</b> {{FormData.user_id}}</el-row>
               <el-row><el-button type="primary" :disabled="isAbleToBuy(FormData.state)" class="button" @click="doBuy()">购 买</el-button></el-row>
             </el-col>
+          </el-row>
+          <br/>
+          <el-row style="    margin-top: 100px;">
+            <el-col :span="6" v-for="comment in this.goodCommentList" :key="comment.comment_id" :offset="2" >
+              <el-card class="box-card">
+                <div class="text item" style="text-align: left;">
+                  评论ID:{{comment.comment_id}}
+                </div>
+                <div class="text item" style="text-align: left;">
+                  评价：{{comment.comment}}
+                </div>
+                <div class="text item" style="text-align: left;">
+                  评价方：{{comment.buyer_id}}
+                </div>
+                <div  v-if="comment.photo!==null&&comment.photo!==' '&&comment.photo!==[]">
+                  <img :src="comment.photo[0].url" class="image" style="height: 50%;">
+                </div>
+                <div v-else>
+                  <img :src="comment.photo" class="image" style="height: 50%;">
+                </div>
+              </el-card>
+              <br/>
+            </el-col>
+          </el-row>
         </div>
         <div v-show="nowIndex === 2">
           <a-page-header
@@ -88,6 +113,12 @@ export default {
       OrderCheck: {
         show: false
       },
+      goodCommentList: [{
+        comment_id: '',
+        photo: [{url: '', name: ''}],
+        comment: '',
+        buyer_id: ''
+      }],
       css_width: '333px',
       css_height: '500px',
       goodList: [
@@ -176,18 +207,33 @@ export default {
       this.refresh()
     },
     doShow (data) {
-      let _this = this
+      var _this = this
+      console.log(sessionStorage.getItem('user_id'))
       this.$axios.get('/api/getGoodCommentByGoodId/', {
         params: {
           good_id: data.good_id
         }
       })
-        .then(function (response) {
-          _this.nowIndex = 1
-          _this.FormData = data
-          console.log(response.data)
-        })
-        .catch(function (error) {
+        .then(
+          function (response) {
+            if (response.status === 200) {
+              _this.goodCommentList = response.data.data
+              _this.goodCommentList.map(function (val) {
+                if (val.photo !== null && val.photo !== '') {
+                  val.photo = '[' + val.photo + ']'
+                  val.photo = JSON.parse(val.photo)
+                }
+              })
+              _this.nowIndex = 1
+              _this.FormData = data
+            } else {
+              _this.$alert(response.msg, 'info', {
+                confirmButtonText: 'ok'
+              })
+            }
+          }
+        )
+        .catch(function (error) { // 请求失败处理
           console.log(error)
         })
     },

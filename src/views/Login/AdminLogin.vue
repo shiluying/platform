@@ -15,7 +15,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item prop="pwd">
-        <el-input type="pwd"
+        <el-input type="password"
                   v-model="loginForm.pwd"
                   auto-complete="off"
                   placeholder="password"

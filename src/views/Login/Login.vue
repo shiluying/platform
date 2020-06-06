@@ -18,9 +18,6 @@
               <el-input type="password" v-model="loginForm.pwd" placeholder="password" prefix-icon="el-icon-lock"></el-input>
             </el-form-item>
             <el-button type="primary" @click="login()">登录</el-button>
-            <div class="form-bottom">
-              <a href="/AdminLogin">转到管理系统</a>
-            </div>
           </el-form>
           <el-form :model="registerForm" status-icon :rules="rules" ref="registerForm" v-show="menuTab[1].isActive">
             <el-form-item prop="name">
